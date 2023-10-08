@@ -5,10 +5,13 @@ import {
   InputGroup,
   InputLeftElement,
   Button,
+  useDisclosure,
 } from "@chakra-ui/react";
-import { FaPlay, FaPause } from "react-icons/fa";
+import { FaPlay, FaPause, FaCheck } from "react-icons/fa";
 
 import { useState, useEffect } from "react";
+
+import { TimerModal } from "./TimerModal";
 
 interface Timer {}
 
@@ -19,6 +22,8 @@ let timer: NodeJS.Timeout;
 export function Timer() {
   const [timerStatus, setTimerStatus] = useState<TimerStatus>("STOPPED");
   const [timerValue, setTimerValue] = useState<string>("00:00:20");
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
     if (timerStatus == "RUNNING") {
@@ -58,6 +63,12 @@ export function Timer() {
 
   return (
     <Stack direction={["row"]} spacing="8px">
+      <TimerModal
+        isOpen={isOpen}
+        onClose={onClose}
+        onOpen={onOpen}
+        currentTime={timerValue}
+      />
       <Button
         textDecoration="none"
         _hover={{ textDecor: "none" }}
@@ -66,13 +77,24 @@ export function Timer() {
         <FaPlay boxSize={3} />
       </Button>
 
-      <Button
-        textDecoration="none"
-        _hover={{ textDecor: "none" }}
-        onClick={() => setTimerStatus("PAUSED")}
-      >
-        <FaPause boxSize={3} />
-      </Button>
+      {timerStatus === "PAUSED" ? (
+        <Button
+          textDecoration="none"
+          _hover={{ textDecor: "none" }}
+          onClick={() => onOpen()}
+        >
+          <FaCheck boxSize={3} />
+        </Button>
+      ) : (
+        <Button
+          textDecoration="none"
+          _hover={{ textDecor: "none" }}
+          onClick={() => setTimerStatus("PAUSED")}
+        >
+          <FaPause boxSize={3} />
+        </Button>
+      )}
+
 
       <InputGroup>
         <Input
