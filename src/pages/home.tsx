@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+import { format, compareAsc } from "date-fns";
 
 import {
   Box,
@@ -40,6 +42,12 @@ export default function Home() {
   const [isInsertStatus, setIsInsertStatus] = useState<boolean>(true);
   const [insertText, setInsertText] = useState<string>("");
   const [todoList, setTodoList] = useState<ListItems>(testList);
+  const [currentDay, setCurrentDay] = useState<string>("");
+
+  useEffect(() => {
+    const today = format(new Date(), "dd, MMM yyyy");
+    setCurrentDay(today + ".")
+  }, []);
 
   const removeItemById = (idToRemove: number) => {
     const updatedList = todoList.filter((item) => item.id !== idToRemove);
@@ -66,7 +74,11 @@ export default function Home() {
         >
           <Box p={["6", "8"]} bg="gray.100" borderRadius={8} pb="4">
             <Text fontSize="lg" mb="4">
-              <b>Current List</b>
+              <Flex w="95%" justify="space-between">
+                <b>Current List</b>
+                <Text>{currentDay}</Text>
+              </Flex>
+
               <Flex direction="column">
                 {todoList.map((item: Item, index: any) => (
                   <Stack

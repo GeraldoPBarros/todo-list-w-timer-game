@@ -27,7 +27,7 @@ export function SidebarNav() {
       </NavSection>
 
       <NavSection title="SETTINGS">
-        <NavLink href="/forms" icon={RiInputMethodLine}>
+        <NavLink href="/tags" icon={RiInputMethodLine}>
           Tags
         </NavLink>
       </NavSection>
