@@ -33,7 +33,7 @@ export default function SigIn() {
         as="form"
         width="100%"
         maxWidth={360}
-        bg="gray.800"
+        bg="gray.100"
         p="8"
         borderRadius={8}
         flexDir="column"
@@ -57,7 +57,7 @@ export default function SigIn() {
         <Button
           type="submit"
           mt="6"
-          colorScheme="pink"
+          colorScheme="green"
           size="lg"
           isLoading={formState.isSubmitting}
         >

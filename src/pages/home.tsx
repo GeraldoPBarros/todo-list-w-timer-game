@@ -4,9 +4,7 @@ import { Header } from "../components/Header";
 import { Sidebar } from "../components/Sidebar";
 
 
-const series = [{ name: "series1", data: [31, 120, 10, 28, 61, 18, 109] }];
-
-export default function Dashboard() {
+export default function Home() {
   return (
     <Flex direction="column" h="100vh">
       <Header />

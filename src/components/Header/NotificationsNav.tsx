@@ -13,7 +13,6 @@ export default function NotificationsNav() {
       borderColor="gray.700"
     >
       <Icon as={RiNotificationLine} fontSize="20" />
-      <Icon as={RiUserAddLine} fontSize="20" />
     </HStack>
   );
 }
