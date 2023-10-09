@@ -15,6 +15,9 @@ import {
 
 import { Sidebar } from "../components/Sidebar";
 import { AddIcon, CloseIcon, DeleteIcon } from "@chakra-ui/icons";
+import { GetServerSideProps } from "next";
+
+import { api } from "../services/api";
 
 interface Item {
   id: number;
@@ -45,7 +48,7 @@ export default function Home() {
 
   useEffect(() => {
     const today = format(new Date(), "dd, MMM yyyy");
-    setCurrentDay(today + ".")
+    setCurrentDay(today + ".");
   }, []);
 
   const removeItemById = (idToRemove: number) => {
@@ -144,3 +147,21 @@ export default function Home() {
     </Flex>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async ({
+  req,
+  params,
+}) => {
+  try {
+    const response = await api.get("users/users_list");
+    console.log("TESTE: ", response.data);
+  } catch (err) {
+    console.log("Error");
+  }
+
+  return {
+    props: {
+      user: "",
+    },
+  };
+};
