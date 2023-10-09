@@ -10,11 +10,14 @@ import {
   ModalFooter,
 } from "@chakra-ui/react";
 
+type TimerStatus = "RUNNING" | "STOPPED" | "PAUSED";
+
 interface ModalTimerType {
   onOpen: () => void;
   onClose: () => void;
   isOpen: boolean;
   currentTime: string;
+  onEnd: (value: TimerStatus) => void;
 }
 
 export function TimerModal({
@@ -22,6 +25,7 @@ export function TimerModal({
   onClose,
   onOpen,
   currentTime,
+  onEnd,
 }: ModalTimerType) {
   return (
     <>
@@ -40,7 +44,15 @@ export function TimerModal({
             <Button colorScheme="green" mr={3} onClick={onClose}>
               Close
             </Button>
-            <Button variant="ghost">Finish</Button>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                onEnd("STOPPED");
+                onClose();
+              }}
+            >
+              Finish
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

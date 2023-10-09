@@ -26,6 +26,10 @@ export function Timer() {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
+    console.log("TimerStatus: ", timerStatus);
+  }, [timerStatus]);
+
+  useEffect(() => {
     if (timerStatus == "RUNNING") {
       const [hours, minutes, seconds] = timerValue.split(":").map(Number);
 
@@ -68,30 +72,40 @@ export function Timer() {
         onClose={onClose}
         onOpen={onOpen}
         currentTime={timerValue}
+        onEnd={setTimerStatus}
       />
       <Button
         textDecoration="none"
-        _hover={{ textDecor: "none" }}
         onClick={() => setTimerStatus("RUNNING")}
       >
         <FaPlay boxSize={3} />
       </Button>
 
-      {timerStatus === "PAUSED" ? (
+      {timerStatus === "STOPPED" && (
         <Button
-          textDecoration="none"
+          textDecoration="white"
           _hover={{ textDecor: "none" }}
-          onClick={() => onOpen()}
+          disabled
+          onClick={() => null}
         >
-          <FaCheck boxSize={3} />
+          <FaPause boxSize={3} />
         </Button>
-      ) : (
+      )}
+
+      {timerStatus === "RUNNING" && (
         <Button
           textDecoration="none"
-          _hover={{ textDecor: "none" }}
           onClick={() => setTimerStatus("PAUSED")}
         >
           <FaPause boxSize={3} />
+        </Button>
+      )}
+
+      {timerStatus === "PAUSED" && (
+        <Button
+          onClick={() => onOpen()}
+        >
+          <FaCheck boxSize={3} />
         </Button>
       )}
 
@@ -100,7 +114,7 @@ export function Timer() {
           value={timerValue}
           onChange={(e) => setTimerValue(e.target.value)}
           w="130px"
-          disabled={timerStatus === "RUNNING"}
+          disabled={timerStatus !== "STOPPED"}
         />
         <InputLeftElement>
           <TimeIcon />

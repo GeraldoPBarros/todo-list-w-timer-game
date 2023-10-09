@@ -1,3 +1,4 @@
+import { useRouter } from "next/navigation";
 import { Flex, Button, Stack } from "@chakra-ui/react";
 
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -22,8 +23,14 @@ export default function SigIn() {
   });
 
   const { errors } = formState;
+  const router = useRouter();
 
   const handleSignIn: SubmitHandler<SignInFormData> = async (values) => {
+    console.log(values);
+    if (values.email === "test@test.com" && values.password === "123456") {
+      console.log("ENTROU");
+      router.push("/home", { scroll: false });
+    }
     await new Promise((resolve) => setTimeout(resolve, 2000));
   };
 
