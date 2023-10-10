@@ -27,28 +27,23 @@ interface Item {
 
 type ListItems = Item[];
 
-export default function Home() {
-  const testList: ListItems = [
-    {
-      id: 1,
-      name: "Insert values",
-      isFinished: false,
-    },
-    {
-      id: 2,
-      name: "Finish coding",
-      isFinished: false,
-    },
-  ];
-
+export default function Home({ tasks }: any) {
   const [isInsertStatus, setIsInsertStatus] = useState<boolean>(true);
   const [insertText, setInsertText] = useState<string>("");
-  const [todoList, setTodoList] = useState<ListItems>(testList);
+  const [todoList, setTodoList] = useState<ListItems>([]);
   const [currentDay, setCurrentDay] = useState<string>("");
 
   useEffect(() => {
     const today = format(new Date(), "dd, MMM yyyy");
     setCurrentDay(today + ".");
+
+    if (tasks.length > 0) {
+      const todoArr = [];
+      for (let x = 0; x < tasks.length; x++) {
+        todoArr.push(tasks[x].data);
+      }
+      setTodoList(todoArr);
+    }
   }, []);
 
   const removeItemById = (idToRemove: number) => {
@@ -119,16 +114,29 @@ export default function Home() {
                 <Button
                   textDecoration="none"
                   _hover={{ textDecor: "none" }}
-                  onClick={() =>
-                    setTodoList([
-                      ...todoList,
-                      {
-                        id: todoList[todoList.length - 1].id + 1,
-                        name: insertText,
-                        isFinished: false,
-                      },
-                    ])
-                  }
+                  onClick={async () => {
+                    const response = await api.put("api/tasks/tasks_list", {
+                      id:
+                        todoList.length > 0
+                          ? todoList[todoList.length - 1].id + 1
+                          : 1,
+                      name: insertText,
+                      isFinished: false,
+                    });
+                    if (response.status === 200) {
+                      setTodoList([
+                        ...todoList,
+                        {
+                          id:
+                            todoList.length > 0
+                              ? todoList[todoList.length - 1].id + 1
+                              : 1,
+                          name: insertText,
+                          isFinished: false,
+                        },
+                      ]);
+                    }
+                  }}
                 >
                   <AddIcon boxSize={3} />
                 </Button>
@@ -153,15 +161,19 @@ export const getServerSideProps: GetServerSideProps = async ({
   params,
 }) => {
   try {
-    const response = await api.get("users/users_list");
-    console.log("TESTE: ", response.data);
-  } catch (err) {
-    console.log("Error");
-  }
+    const response = await api.get("tasks/tasks_list");
+    const tasks = response.data.tasks.data;
 
-  return {
-    props: {
-      user: "",
-    },
-  };
+    return {
+      props: {
+        tasks: tasks,
+      },
+    };
+  } catch (err) {
+    return {
+      props: {
+        tasks: [],
+      },
+    };
+  }
 };
