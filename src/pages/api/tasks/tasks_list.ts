@@ -16,18 +16,26 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     const task_list = await fauna.query(
       q.Map(
         q.Paginate(q.Documents(q.Collection("tasks"))),
-        q.Lambda((show) => q.Get(show))
+        q.Lambda((task) => q.Get(task))
       )
     );
     return res.status(200).json({ tasks: task_list });
   }
-  
+
   if (req.method === "PUT") {
     const body = req.body;
     let query = await fauna.query(
       q.Create(q.Collection("tasks"), {
         data: body,
       })
+    );
+    res.status(200).json({ data: query });
+  }
+
+  if (req.method === "DELETE") {
+    const { id } = req.query;
+    let query = await fauna.query(
+      q.Delete(q.Ref(q.Collection("tasks"), id))
     );
     res.status(200).json({ data: query });
   }

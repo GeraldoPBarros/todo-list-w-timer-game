@@ -23,6 +23,7 @@ interface Item {
   id: number;
   name: string;
   isFinished: boolean;
+  idBd: any;
 }
 
 type ListItems = Item[];
@@ -36,15 +37,17 @@ export default function Home({ tasks }: any) {
   useEffect(() => {
     const today = format(new Date(), "dd, MMM yyyy");
     setCurrentDay(today + ".");
+  }, []);
 
+  useEffect(() => {
     if (tasks.length > 0) {
       const todoArr = [];
       for (let x = 0; x < tasks.length; x++) {
-        todoArr.push(tasks[x].data);
+        todoArr.push(tasks[x]);
       }
       setTodoList(todoArr);
     }
-  }, []);
+  }, [tasks]);
 
   const removeItemById = (idToRemove: number) => {
     const updatedList = todoList.filter((item) => item.id !== idToRemove);
@@ -75,23 +78,32 @@ export default function Home({ tasks }: any) {
               </Flex>
 
               <Flex direction="column">
-                {todoList.map((item: Item, index: any) => (
-                  <Stack
-                    direction={["column", "row"]}
-                    spacing="8px"
-                    alignItems="center"
-                  >
-                    <Checkbox></Checkbox>
-                    <Text key={item.name}>{item.name}</Text>
-                    <Button
-                      textDecoration="none"
-                      _hover={{ textDecor: "none" }}
-                      onClick={() => removeItemById(item.id)}
+                {todoList.length > 0 &&
+                  todoList.map((item: Item, index: any) => (
+                    <Stack
+                      direction={["column", "row"]}
+                      spacing="8px"
+                      alignItems="center"
                     >
-                      <DeleteIcon boxSize={3} />
-                    </Button>
-                  </Stack>
-                ))}
+                      <Checkbox></Checkbox>
+                      <Text key={item?.name}>{item?.name}</Text>
+                      <Button
+                        textDecoration="none"
+                        _hover={{ textDecor: "none" }}
+                        onClick={async () => {
+                          const response = await api.delete(
+                            `api/tasks/tasks_list`,
+                            { params: { id: item.idBd } }
+                          );
+                          if (response.status === 200) {
+                            removeItemById(item?.id);
+                          }
+                        }}
+                      >
+                        <DeleteIcon boxSize={3} />
+                      </Button>
+                    </Stack>
+                  ))}
               </Flex>
             </Text>
             {isInsertStatus && (
@@ -124,6 +136,10 @@ export default function Home({ tasks }: any) {
                       isFinished: false,
                     });
                     if (response.status === 200) {
+                      const responseRead = await api.get(
+                        "api/tasks/tasks_list"
+                      );
+                      const new_todo_list = responseRead.data.tasks.data;
                       setTodoList([
                         ...todoList,
                         {
@@ -133,6 +149,9 @@ export default function Home({ tasks }: any) {
                               : 1,
                           name: insertText,
                           isFinished: false,
+                          idBd: new_todo_list[new_todo_list.length - 1].ref[
+                            "@ref"
+                          ].id,
                         },
                       ]);
                     }
@@ -162,7 +181,16 @@ export const getServerSideProps: GetServerSideProps = async ({
 }) => {
   try {
     const response = await api.get("tasks/tasks_list");
-    const tasks = response.data.tasks.data;
+    const tempTasks: any = response.data.tasks.data;
+    // console.log("TASKS: ", response.data.tasks.data[0].ref["@ref"].id);
+    const tasks: ListItems = tempTasks.map(function (task: any, index: any) {
+      return {
+        id: task.data.id,
+        name: task.data.name,
+        isFinished: task.data.isFinished,
+        idBd: task.ref["@ref"].id,
+      };
+    });
 
     return {
       props: {
