@@ -4,19 +4,19 @@ import { fauna } from "../../../services/fauna";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "GET") {
-    const task_list = await fauna.query(
+    const history_list = await fauna.query(
       q.Map(
-        q.Paginate(q.Documents(q.Collection("tasks"))),
-        q.Lambda((task) => q.Get(task))
+        q.Paginate(q.Documents(q.Collection("history"))),
+        q.Lambda((hist) => q.Get(hist))
       )
     );
-    return res.status(200).json({ tasks: task_list });
+    return res.status(200).json({ history: history_list });
   }
 
   if (req.method === "PUT") {
     const body = req.body;
     let query = await fauna.query(
-      q.Create(q.Collection("tasks"), {
+      q.Create(q.Collection("history"), {
         data: body,
       })
     );
@@ -26,7 +26,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "DELETE") {
     const { id } = req.query;
     let query = await fauna.query(
-      q.Delete(q.Ref(q.Collection("tasks"), id))
+      q.Delete(q.Ref(q.Collection("history"), id))
     );
     res.status(200).json({ data: query });
   }

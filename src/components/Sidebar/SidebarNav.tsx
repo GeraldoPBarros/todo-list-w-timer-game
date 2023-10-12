@@ -18,7 +18,7 @@ export function SidebarNav() {
         <NavLink href="/home" icon={FaCheck}>
           To-Do List
         </NavLink>
-        <NavLink href="/users" icon={RiContactsLine}>
+        <NavLink href="/history" icon={RiContactsLine}>
           History
         </NavLink>
         <NavLink href="/users" icon={RiDashboardLine}>
