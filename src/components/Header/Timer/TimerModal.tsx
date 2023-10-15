@@ -32,7 +32,7 @@ export function TimerModal({
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Realy want to finish timer?</ModalHeader>
+          <ModalHeader>Do you realy want to finish the timer?</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             {currentTime === "00:00:00"

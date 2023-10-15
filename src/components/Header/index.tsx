@@ -5,9 +5,12 @@ import Logo from "./Logo";
 import NotificationsNav from "./NotificationsNav";
 import Profile from "./Profile";
 import { Timer } from "./Timer";
+import Head from "next/head";
+import { useTimerContext } from "@/context/TimerContext";
 
 export function Header() {
   const { onOpen } = useSidebarDrawer();
+  const { currentTimer, isTimerRunning } = useTimerContext();
 
   const isWideVersion = useBreakpointValue({
     base: false,
@@ -25,6 +28,18 @@ export function Header() {
       px="6"
       align="center"
     >
+      {isTimerRunning && (
+        <Head>
+          <title>{currentTimer}</title>
+        </Head>
+      )}
+
+      {!isTimerRunning && (
+        <Head>
+          <title>to-do list</title>
+        </Head>
+      )}
+
       {!isWideVersion && (
         <IconButton
           aria-label="Open navigation"

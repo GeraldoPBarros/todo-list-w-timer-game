@@ -12,10 +12,11 @@ import {
   Stack,
   Checkbox,
   Spinner,
+  Icon,
 } from "@chakra-ui/react";
 
-import { Sidebar } from "../components/Sidebar";
 import { AddIcon, CloseIcon, DownloadIcon } from "@chakra-ui/icons";
+import { MdArchive } from "react-icons/md";
 import { GetServerSideProps } from "next";
 
 import { api } from "../services/api";
@@ -53,9 +54,9 @@ export default function Home({ tasks }: any) {
     }
   }, [tasks]);
 
-  useEffect(() => {
-    console.log("TodoList: ", todoList);
-  }, [todoList]);
+  // useEffect(() => {
+  //   console.log("TodoList: ", todoList);
+  // }, [todoList]);
 
   const removeItemById = (idToRemove: number) => {
     console.log("ids: ", idToRemove);
@@ -118,7 +119,6 @@ export default function Home({ tasks }: any) {
                     setArchiveSpinner(false);
                   }}
                 >
-                  <DownloadIcon boxSize={4} />
                   {archiveSpinner && <Spinner />}
                 </Button>
               )}
@@ -176,7 +176,7 @@ export default function Home({ tasks }: any) {
                       }
                     }}
                   >
-                    <DownloadIcon boxSize={4} />
+                    <Icon as={MdArchive} fontSize="22" color="gray.400" />
                   </Button>
                 </Stack>
               ))}
