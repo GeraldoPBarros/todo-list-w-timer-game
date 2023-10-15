@@ -1,20 +1,28 @@
-import { TimeIcon } from "@chakra-ui/icons";
+import { ChevronDownIcon, TimeIcon } from "@chakra-ui/icons";
 import {
-  Input,
   Stack,
-  InputGroup,
-  InputLeftElement,
   Button,
   useDisclosure,
   Icon,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Text,
+  Flex,
 } from "@chakra-ui/react";
-import { FaPlay, FaPause, FaCheck } from "react-icons/fa";
+
+import { format } from "date-fns";
+
+import { FaPlay, FaPause } from "react-icons/fa";
 import { FaListCheck } from "react-icons/fa6";
 
 import { useState, useEffect } from "react";
 
 import { TimerModal } from "./TimerModal";
 import { useTimerContext } from "@/context/TimerContext";
+import { subtractTime } from "@/utils/subtractTime";
+import { api } from "@/services/api";
 
 interface Timer {}
 
@@ -24,18 +32,25 @@ let timer: NodeJS.Timeout;
 
 export function Timer() {
   const [timerStatus, setTimerStatus] = useState<TimerStatus>("STOPPED");
-  const { currentTimer, setCurrentTimer, setIsTimerRunning } = useTimerContext();
+  const [initialTime, setInitialTime] = useState<string>("00:00:00");
+
+  const { currentTimer, setCurrentTimer, setIsTimerRunning } =
+    useTimerContext();
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
-    console.log("TimerStatus: ", timerStatus);
     if (timerStatus === "RUNNING") {
       setIsTimerRunning(true);
+      setInitialTime(currentTimer);
     } else {
       setIsTimerRunning(false);
     }
   }, [timerStatus]);
+
+  useEffect(() => {
+    console.log("initialTime: ", initialTime);
+  }, [initialTime]);
 
   useEffect(() => {
     if (timerStatus == "RUNNING") {
@@ -43,7 +58,7 @@ export function Timer() {
 
       if (hours === 0 && minutes === 0 && seconds === 0) {
         // Timer reached zero, stop the timer
-        setTimerStatus("STOPPED");
+        finishTimer("STOPPED");
         return;
       }
 
@@ -73,6 +88,16 @@ export function Timer() {
     };
   }, [timerStatus, currentTimer]);
 
+  const finishTimer = (action: TimerStatus) => {
+    setTimerStatus(action);
+    const finalTime = subtractTime(initialTime, currentTimer);
+    api.put("api/rewards/manage_rewards", {
+      time: finalTime,
+      date: format(new Date(), "dd, MMM yyyy pp"),
+    });
+    setCurrentTimer("Select");
+  };
+
   return (
     <Stack direction={["row"]} spacing="8px">
       <TimerModal
@@ -80,7 +105,7 @@ export function Timer() {
         onClose={onClose}
         onOpen={onOpen}
         currentTime={currentTimer}
-        onEnd={setTimerStatus}
+        onEnd={finishTimer}
       />
       <Button
         textDecoration="none"
@@ -97,13 +122,13 @@ export function Timer() {
           disabled
           onClick={() => null}
         >
-          <FaPause boxSize={3} />
+          <FaPause boxSize={2} />
         </Button>
       )}
 
       {timerStatus === "RUNNING" && (
         <Button textDecoration="none" onClick={() => setTimerStatus("PAUSED")}>
-          <FaPause boxSize={3} />
+          <FaPause boxSize={2} />
         </Button>
       )}
 
@@ -113,17 +138,40 @@ export function Timer() {
         </Button>
       )}
 
-      <InputGroup>
-        <Input
-          value={currentTimer}
-          onChange={(e) => setCurrentTimer(e.target.value)}
-          w="130px"
-          disabled={timerStatus !== "STOPPED"}
-        />
-        <InputLeftElement>
-          <TimeIcon />
-        </InputLeftElement>
-      </InputGroup>
+      <Flex>
+        <Menu>
+          <MenuButton
+            disabled={timerStatus !== "STOPPED"}
+            bg={timerStatus !== "STOPPED" ? "gray.200" : "gray.100"}
+            as={Button}
+            rightIcon={<ChevronDownIcon />}
+          >
+            <Stack direction="row" spacing={2} alignItems="center" w={85}>
+              <TimeIcon />
+              <Text>{currentTimer}</Text>
+            </Stack>
+          </MenuButton>
+          {timerStatus === "STOPPED" && (
+            <MenuList>
+              <MenuItem onClick={() => setCurrentTimer("00:10:00")}>
+                10 min
+              </MenuItem>
+              <MenuItem onClick={() => setCurrentTimer("00:15:00")}>
+                15 min
+              </MenuItem>
+              <MenuItem onClick={() => setCurrentTimer("00:20:00")}>
+                20 min
+              </MenuItem>
+              <MenuItem onClick={() => setCurrentTimer("00:25:00")}>
+                25 min
+              </MenuItem>
+              <MenuItem onClick={() => setCurrentTimer("00:30:00")}>
+                30 min
+              </MenuItem>
+            </MenuList>
+          )}
+        </Menu>
+      </Flex>
     </Stack>
   );
 }

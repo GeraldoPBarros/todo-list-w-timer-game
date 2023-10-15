@@ -14,7 +14,7 @@ type AuthProviderProps = {
 export const TimerContext = createContext({} as TimerContextData);
 
 export function TimerProvider({ children }: AuthProviderProps) {
-  const [currentTimer, setCurrentTimer] = useState<string>("00:00:20");
+  const [currentTimer, setCurrentTimer] = useState<string>("Select");
   const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false);
 
   return (

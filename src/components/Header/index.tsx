@@ -28,13 +28,11 @@ export function Header() {
       px="6"
       align="center"
     >
-      {isTimerRunning && (
+      {isTimerRunning ? (
         <Head>
           <title>{currentTimer}</title>
         </Head>
-      )}
-
-      {!isTimerRunning && (
+      ) : (
         <Head>
           <title>to-do list</title>
         </Head>
