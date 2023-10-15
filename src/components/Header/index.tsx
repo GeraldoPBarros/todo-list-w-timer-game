@@ -36,7 +36,7 @@ export function Header() {
         />
       )}
 
-      <Logo />
+      <Logo isBig={false} />
 
       <Flex align="center" ml="auto">
         <Timer />

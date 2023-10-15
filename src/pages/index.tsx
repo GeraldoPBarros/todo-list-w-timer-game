@@ -6,6 +6,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
 import { Input } from "../components/Form/Input";
+import Logo from "@/components/Header/Logo";
 
 type SignInFormData = {
   email: string;
@@ -35,7 +36,9 @@ export default function SigIn() {
   };
 
   return (
-    <Flex w="100vw" h="100vh" align="center" justify="center">
+    <Flex w="100vw" h="100vh" align="center" justify="center" direction="column">
+      <Logo isBig />
+      <br />
       <Flex
         as="form"
         width="100%"

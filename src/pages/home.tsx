@@ -11,6 +11,7 @@ import {
   Input,
   Stack,
   Checkbox,
+  Spinner,
 } from "@chakra-ui/react";
 
 import { Sidebar } from "../components/Sidebar";
@@ -34,6 +35,7 @@ export default function Home({ tasks }: any) {
   const [insertText, setInsertText] = useState<string>("");
   const [todoList, setTodoList] = useState<ListItems>([]);
   const [currentDay, setCurrentDay] = useState<string>("");
+  const [archiveSpinner, setArchiveSpinner] = useState<boolean>(false);
 
   useEffect(() => {
     console.log(new Date());
@@ -51,13 +53,25 @@ export default function Home({ tasks }: any) {
     }
   }, [tasks]);
 
-  // useEffect(() => {
-  //   console.log("TodoList: ", todoList);
-  // }, [todoList]);
+  useEffect(() => {
+    console.log("TodoList: ", todoList);
+  }, [todoList]);
 
   const removeItemById = (idToRemove: number) => {
+    console.log("ids: ", idToRemove);
     const updatedList = todoList.filter((item) => item.id !== idToRemove);
     setTodoList(updatedList);
+  };
+
+  const updateItemById = (idToUpdate: number) => {
+    const newList = todoList.map((task) => {
+      if (task.id === idToUpdate) {
+        return { ...task, isFinished: !task.isFinished };
+      }
+
+      return task;
+    });
+    setTodoList(newList);
   };
 
   function CloseInsertionMode() {
@@ -70,9 +84,50 @@ export default function Home({ tasks }: any) {
       <Box p={["6", "8"]} bg="gray.100" borderRadius={8} pb="4">
         <Text fontSize="lg" mb="4">
           <Flex w="95%" justify="space-between">
-            <b>Current List</b>
+            <Stack direction="row" spacing={4} alignItems="center">
+              <b>Your Current List</b>
+              {todoList.length > 31231231230 && (
+                <Button
+                  textDecoration="none"
+                  _hover={{ textDecor: "none" }}
+                  disabled={archiveSpinner}
+                  onClick={async () => {
+                    setArchiveSpinner(true);
+                    for (let x = 0; x < todoList.length; x++) {
+                      if (todoList[x].isFinished) {
+                        const response = await api.put(
+                          "api/history/tasks_history",
+                          {
+                            id: todoList[x].id,
+                            name: todoList[x].name,
+                            createdAt: todoList[x].createdAt,
+                            finishedAt: format(new Date(), "dd, MMM yyyy pp"),
+                          }
+                        );
+                        if (response.status === 200) {
+                          const respHist = await api.delete(
+                            `api/tasks/tasks_list`,
+                            { params: { id: todoList[x].idBd } }
+                          );
+                          if (respHist.status === 200) {
+                            removeItemById(todoList[x]?.id);
+                          }
+                        }
+                      }
+                    }
+                    setArchiveSpinner(false);
+                  }}
+                >
+                  <DownloadIcon boxSize={4} />
+                  {archiveSpinner && <Spinner />}
+                </Button>
+              )}
+            </Stack>
+
             <Text>{currentDay}</Text>
           </Flex>
+
+          <br />
 
           <Flex direction="column">
             {todoList.length > 0 &&
@@ -82,7 +137,21 @@ export default function Home({ tasks }: any) {
                   spacing="8px"
                   alignItems="center"
                 >
-                  <Checkbox></Checkbox>
+                  <Checkbox
+                    isChecked={item.isFinished}
+                    colorScheme="green"
+                    onChange={async () => {
+                      const response = await api.put("api/tasks/tasks_by_id", {
+                        name: item.name,
+                        idBd: item.idBd,
+                        isFinished: !item.isFinished,
+                        createdAt: item.createdAt,
+                      });
+                      if (response.status === 200) {
+                        updateItemById(item.idBd);
+                      }
+                    }}
+                  ></Checkbox>
                   <Text key={item?.name}>{item?.name}</Text>
                   <Button
                     textDecoration="none"
@@ -91,7 +160,6 @@ export default function Home({ tasks }: any) {
                       const response = await api.put(
                         "api/history/tasks_history",
                         {
-                          id: item.id,
                           name: item.name,
                           createdAt: item.createdAt,
                           finishedAt: format(new Date(), "dd, MMM yyyy pp"),
@@ -137,10 +205,6 @@ export default function Home({ tasks }: any) {
               _hover={{ textDecor: "none" }}
               onClick={async () => {
                 const response = await api.put("api/tasks/tasks_list", {
-                  id:
-                    todoList.length > 0
-                      ? todoList[todoList.length - 1].id + 1
-                      : 1,
                   name: insertText,
                   isFinished: false,
                   createdAt: format(new Date(), "dd, MMM yyyy pp"),
@@ -151,10 +215,7 @@ export default function Home({ tasks }: any) {
                   setTodoList([
                     ...todoList,
                     {
-                      id:
-                        todoList.length > 0
-                          ? todoList[todoList.length - 1].id + 1
-                          : 1,
+                      id: nTDList[nTDList.length - 1].ref["@ref"].id,
                       name: insertText,
                       isFinished: false,
                       idBd: nTDList[nTDList.length - 1].ref["@ref"].id,
@@ -191,10 +252,11 @@ export const getServerSideProps: GetServerSideProps = async ({
     // console.log("TASKS: ", response.data.tasks.data[0].ref["@ref"].id);
     const tasks: ListItems = tempTasks.map(function (task: any, index: any) {
       return {
-        id: task.data.id,
+        id: task.ref["@ref"].id,
         name: task.data.name,
         isFinished: task.data.isFinished,
         idBd: task.ref["@ref"].id,
+        createdAt: task.data.createdAt,
       };
     });
 

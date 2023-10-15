@@ -6,9 +6,20 @@ import { useRouter } from "next/router";
 
 import { theme } from "../styles/theme";
 import { Sidebar } from "@/components/Sidebar";
+import { useEffect, useState } from "react";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const { pathname } = useRouter();
+
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return null;
+  }
 
   return (
     <ChakraProvider theme={theme}>

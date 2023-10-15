@@ -27,7 +27,6 @@ export default function History(history: HistoryList) {
   const [historyList, setHistoryList] = useState<any>(history);
 
   useEffect(() => {
-    console.log("history: ", history);
     setHistoryList(history);
   }, [history]);
 
