@@ -72,7 +72,7 @@ export const getServerSideProps: GetServerSideProps = async ({
       index: any
     ) {
       return {
-        id: histData.data.id,
+        // id: histData.data.id || "",
         name: histData.data.name,
         createdAt: histData.data.createdAt,
         finishedAt: histData.data.finishedAt,

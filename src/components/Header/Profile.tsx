@@ -1,19 +1,28 @@
-import { Avatar, Box, Flex, Text } from "@chakra-ui/react";
+import { Avatar, Flex, Text } from "@chakra-ui/react";
+import { StarIcon } from "@chakra-ui/icons";
 
 interface ProfileProps {
   showProfileData?: boolean;
+  participantLvl?: string;
+  percentageNextLvl?: string;
 }
 
 export default function Profile({ showProfileData = true }: ProfileProps) {
   return (
     <Flex align="center">
       {showProfileData && (
-        <Box mr="4" textAlign="right">
+        <Flex
+          mr="4"
+          direction="column"
+          textAlign="right"
+          justifyContent="center"
+        >
           <Text>Geraldo Barros</Text>
           <Text color="gray.300" fontSize="small">
-            geraldo.barros20@gmail.com
+            <StarIcon boxSize={3} pb={1} />
+            Level 1: 50%
           </Text>
-        </Box>
+        </Flex>
       )}
 
       <Avatar

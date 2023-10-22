@@ -10,7 +10,6 @@ import {
   Text,
   Input,
   Stack,
-  Checkbox,
   Spinner,
   Icon,
 } from "@chakra-ui/react";
@@ -18,6 +17,8 @@ import {
 import { AddIcon, CloseIcon, DownloadIcon } from "@chakra-ui/icons";
 import { MdArchive } from "react-icons/md";
 import { GetServerSideProps } from "next";
+
+import { CheckboxComponent } from "../components/Checkbox";
 
 import { api } from "../services/api";
 
@@ -54,10 +55,6 @@ export default function Home({ tasks }: any) {
     }
   }, [tasks]);
 
-  // useEffect(() => {
-  //   console.log("TodoList: ", todoList);
-  // }, [todoList]);
-
   const removeItemById = (idToRemove: number) => {
     console.log("ids: ", idToRemove);
     const updatedList = todoList.filter((item) => item.id !== idToRemove);
@@ -80,6 +77,57 @@ export default function Home({ tasks }: any) {
     setIsInsertStatus(true);
   }
 
+  async function OnChangeCheckbox(item: Item) {
+    const response = await api.put("api/tasks/tasks_by_id", {
+      name: item.name,
+      idBd: item.idBd,
+      isFinished: !item.isFinished,
+      createdAt: item.createdAt,
+    });
+    if (response.status === 200) {
+      updateItemById(item.idBd);
+    }
+  }
+
+  async function OnArchiveTask(item: Item) {
+    const response = await api.put("api/history/tasks_history", {
+      name: item.name,
+      createdAt: item.createdAt,
+      finishedAt: format(new Date(), "dd, MMM yyyy pp"),
+    });
+    if (response.status === 200) {
+      const respHist = await api.delete(`api/tasks/tasks_list`, {
+        params: { id: item.idBd },
+      });
+      if (respHist.status === 200) {
+        removeItemById(item?.id);
+      }
+    }
+  }
+
+  async function OnAddTask(text: string) {
+    const response = await api.put("api/tasks/tasks_list", {
+      name: text,
+      isFinished: false,
+      createdAt: format(new Date(), "dd, MMM yyyy pp"),
+    });
+    if (response.status === 200) {
+      const responseRead = await api.get("api/tasks/tasks_list");
+      const nTDList = responseRead.data.tasks.data;
+      setTodoList([
+        ...todoList,
+        {
+          id: nTDList[nTDList.length - 1].ref["@ref"].id,
+          name: insertText,
+          isFinished: false,
+          idBd: nTDList[nTDList.length - 1].ref["@ref"].id,
+          createdAt: nTDList[nTDList.length - 1].data.createdAt,
+        },
+      ]);
+      setInsertText("");
+    }
+  }
+
   return (
     <SimpleGrid flex="1" gap="4" minChildWidth="320px" alignItems="flex-start">
       <Box p={["6", "8"]} bg="gray.100" borderRadius={8} pb="4">
@@ -87,6 +135,7 @@ export default function Home({ tasks }: any) {
           <Flex w="95%" justify="space-between">
             <Stack direction="row" spacing={4} alignItems="center">
               <b>Your Current List</b>
+              {/** VALIDATION FOR PAGINATION */}
               {todoList.length > 31231231230 && (
                 <Button
                   textDecoration="none"
@@ -131,50 +180,22 @@ export default function Home({ tasks }: any) {
 
           <Flex direction="column">
             {todoList.length > 0 &&
-              todoList.map((item: Item, index: any) => (
+              todoList.map((item: Item) => (
                 <Stack
                   direction={["column", "row"]}
                   spacing="8px"
                   alignItems="center"
                 >
-                  <Checkbox
-                    isChecked={item.isFinished}
-                    colorScheme="green"
-                    onChange={async () => {
-                      const response = await api.put("api/tasks/tasks_by_id", {
-                        name: item.name,
-                        idBd: item.idBd,
-                        isFinished: !item.isFinished,
-                        createdAt: item.createdAt,
-                      });
-                      if (response.status === 200) {
-                        updateItemById(item.idBd);
-                      }
-                    }}
-                  ></Checkbox>
+                  <CheckboxComponent
+                    item={item}
+                    isFinished={item.isFinished}
+                    onChangeFn={() => OnChangeCheckbox(item)}
+                  />
                   <Text key={item?.name}>{item?.name}</Text>
                   <Button
                     textDecoration="none"
                     _hover={{ textDecor: "none" }}
-                    onClick={async () => {
-                      const response = await api.put(
-                        "api/history/tasks_history",
-                        {
-                          name: item.name,
-                          createdAt: item.createdAt,
-                          finishedAt: format(new Date(), "dd, MMM yyyy pp"),
-                        }
-                      );
-                      if (response.status === 200) {
-                        const respHist = await api.delete(
-                          `api/tasks/tasks_list`,
-                          { params: { id: item.idBd } }
-                        );
-                        if (respHist.status === 200) {
-                          removeItemById(item?.id);
-                        }
-                      }
-                    }}
+                    onClick={async () => OnArchiveTask(item)}
                   >
                     <Icon as={MdArchive} fontSize="22" color="gray.400" />
                   </Button>
@@ -203,28 +224,7 @@ export default function Home({ tasks }: any) {
             <Button
               textDecoration="none"
               _hover={{ textDecor: "none" }}
-              onClick={async () => {
-                const response = await api.put("api/tasks/tasks_list", {
-                  name: insertText,
-                  isFinished: false,
-                  createdAt: format(new Date(), "dd, MMM yyyy pp"),
-                });
-                if (response.status === 200) {
-                  const responseRead = await api.get("api/tasks/tasks_list");
-                  const nTDList = responseRead.data.tasks.data;
-                  setTodoList([
-                    ...todoList,
-                    {
-                      id: nTDList[nTDList.length - 1].ref["@ref"].id,
-                      name: insertText,
-                      isFinished: false,
-                      idBd: nTDList[nTDList.length - 1].ref["@ref"].id,
-                      createdAt: nTDList[nTDList.length - 1].data.createdAt,
-                    },
-                  ]);
-                  setInsertText("");
-                }
-              }}
+              onClick={async () => OnAddTask(insertText)}
             >
               <AddIcon boxSize={3} />
             </Button>
