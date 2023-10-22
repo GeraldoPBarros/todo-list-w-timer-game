@@ -110,7 +110,9 @@ export function Timer() {
       <Button
         textDecoration="none"
         disabled={timerStatus === "RUNNING"}
-        onClick={() => setTimerStatus("RUNNING")}
+        onClick={() =>
+          currentTimer !== "Select" ? setTimerStatus("RUNNING") : null
+        }
       >
         <FaPlay boxSize={3} />
       </Button>
