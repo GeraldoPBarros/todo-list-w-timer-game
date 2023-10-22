@@ -182,7 +182,7 @@ export default function Home({ tasks }: any) {
             {todoList.length > 0 &&
               todoList.map((item: Item) => (
                 <Stack
-                  direction={["column", "row"]}
+                  direction={["row"]}
                   spacing="8px"
                   alignItems="center"
                 >

@@ -8,6 +8,7 @@ import { theme } from "../styles/theme";
 import { Sidebar } from "@/components/Sidebar";
 import { useEffect, useState } from "react";
 import { TimerProvider } from "@/context/TimerContext";
+import { SidebarDrawerProvider } from "@/context/SidebarDrawerContext";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const { pathname } = useRouter();
@@ -24,15 +25,17 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   return (
     <ChakraProvider theme={theme}>
-      <TimerProvider>
-        {pathname !== "/" && <Header />}
-        <Flex direction="column" h="100vh">
-          <Flex w="100%" my="6" maxWidth={1480} mx="auto" px="6">
-            {pathname !== "/" && <Sidebar />}
-            <Component {...pageProps} />
+      <SidebarDrawerProvider>
+        <TimerProvider>
+          {pathname !== "/" && <Header />}
+          <Flex direction="column" h="100vh">
+            <Flex w="100%" my="6" maxWidth={1480} mx="auto" px="6">
+              {pathname !== "/" && <Sidebar />}
+              <Component {...pageProps} />
+            </Flex>
           </Flex>
-        </Flex>
-      </TimerProvider>
+        </TimerProvider>
+      </SidebarDrawerProvider>
     </ChakraProvider>
   );
 }

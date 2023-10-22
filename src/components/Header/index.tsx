@@ -1,12 +1,21 @@
-import { Flex, Icon, IconButton, useBreakpointValue } from "@chakra-ui/react";
+import Head from "next/head";
+
+import {
+  Flex,
+  Icon,
+  IconButton,
+  useBreakpointValue,
+  useMediaQuery,
+} from "@chakra-ui/react";
+
 import { RiMenuLine } from "react-icons/ri";
 import { useSidebarDrawer } from "../../context/SidebarDrawerContext";
-import Logo from "./Logo";
+
+import { useTimerContext } from "@/context/TimerContext";
 import NotificationsNav from "./NotificationsNav";
 import Profile from "./Profile";
+import Logo from "./Logo";
 import { Timer } from "./Timer";
-import Head from "next/head";
-import { useTimerContext } from "@/context/TimerContext";
 
 export function Header() {
   const { onOpen } = useSidebarDrawer();
@@ -16,6 +25,8 @@ export function Header() {
     base: false,
     lg: true,
   });
+
+  const [isLargerThan680] = useMediaQuery("(min-width: 680px)");
 
   return (
     <Flex
@@ -49,12 +60,17 @@ export function Header() {
         />
       )}
 
-      <Logo isBig={false} />
+      {isLargerThan680 && <Logo isBig={false} />}
 
       <Flex align="center" ml="auto">
         <Timer />
-        <NotificationsNav />
-        <Profile showProfileData={isWideVersion} />
+
+        {isLargerThan680 && (
+          <>
+            <NotificationsNav />
+            <Profile showProfileData={isWideVersion} />
+          </>
+        )}
       </Flex>
     </Flex>
   );
