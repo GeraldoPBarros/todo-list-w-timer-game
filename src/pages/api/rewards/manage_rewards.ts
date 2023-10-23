@@ -10,7 +10,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         q.Lambda((task) => q.Get(task))
       )
     );
-    return res.status(200).json({ tasks: task_list });
+    return res.status(200).json({ rewards: task_list });
   }
 
   if (req.method === "PUT") {

@@ -20,8 +20,8 @@ export function SidebarNav() {
         <NavLink href="/history" icon={RiContactsLine}>
           History
         </NavLink>
-        <NavLink href="/users" icon={RiDashboardLine}>
-          Groups
+        <NavLink href="/earnings" icon={RiDashboardLine}>
+          Earnings
         </NavLink>
       </NavSection>
 
