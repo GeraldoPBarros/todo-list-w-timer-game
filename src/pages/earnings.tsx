@@ -37,7 +37,10 @@ export default function History(rewards: RewardsList) {
               rewardsList.rewards.map((item: RewardsItem, index: any) => (
                 <Stack direction={["row"]} spacing="8px" mb={2}>
                   <ListIcon as={MdCheckCircle} color="green.500" />
-                  <Code colorScheme="orange" children={`Finished at: ${item.date}`} />
+                  <Code
+                    colorScheme="orange"
+                    children={`Finished at: ${item.date}`}
+                  />
                   <Text>{`.`}</Text>
                   <Code
                     colorScheme="green"
@@ -58,15 +61,12 @@ export const getServerSideProps: GetServerSideProps = async ({
 }) => {
   try {
     const response = await api.get("rewards/manage_rewards");
-    const tempHistory: any = response.data.rewards.data;
-    console.log("rewards: ", response.data.rewards.data);
-    const rewards: RewardsList = tempHistory.map(function (
-      histData: any,
-      index: any
-    ) {
+    const tempRewards: any = response.data.rewards.data;
+    
+    const rewards: RewardsList = tempRewards.map(function (rewardsData: any) {
       return {
-        time: histData.data.time,
-        date: histData.data.date,
+        time: rewardsData.data.time,
+        date: rewardsData.data.date,
       };
     });
 
