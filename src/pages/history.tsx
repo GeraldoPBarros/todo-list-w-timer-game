@@ -1,21 +1,12 @@
 import { api } from "../services/api";
-import {
-  Box,
-  Code,
-  List,
-  ListIcon,
-  ListItem,
-  SimpleGrid,
-  Stack,
-  Text,
-} from "@chakra-ui/react";
-import { MdCheckCircle } from "react-icons/md";
+import { Box, SimpleGrid, Text } from "@chakra-ui/react";
 import { GetServerSideProps } from "next";
 
-import { ResponsiveLine } from "@nivo/line";
-
 import { useEffect, useState } from "react";
-import { te } from "date-fns/locale";
+
+import { Suspense, lazy } from "react";
+
+let Plot = lazy(() => import("react-plotly.js"));
 
 interface HistoryItem {
   id: number;
@@ -26,81 +17,45 @@ interface HistoryItem {
 
 type HistoryList = HistoryItem[];
 
-export default function History(history: any) {
+export default function History({ history }: any) {
   const [historyList, setHistoryList] = useState<any>(history);
 
   useEffect(() => {
-    setHistoryList(history);
+    if (history !== undefined) {
+      setHistoryList(history.data);
+    }
   }, [history]);
+
+  useEffect(() => {
+    console.log("historyList: ", historyList);
+  }, [historyList]);
+
 
   return (
     <SimpleGrid flex="1" gap="4" minChildWidth="320px" alignItems="flex-start">
       <Box p={["6", "8"]} bg="gray.100" borderRadius={8} pb="4">
-        {/*
-        <ResponsiveLine
-          data={[]}
-          margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
-          xScale={{ type: "point" }}
-          yScale={{
-            type: "linear",
-            min: "auto",
-            max: "auto",
-            stacked: true,
-            reverse: false,
-          }}
-          yFormat=" >-.2f"
-          axisTop={null}
-          axisRight={null}
-          axisBottom={{
-            tickSize: 5,
-            tickPadding: 5,
-            tickRotation: 0,
-            legend: "transportation",
-            legendOffset: 36,
-            legendPosition: "middle",
-          }}
-          axisLeft={{
-            tickSize: 5,
-            tickPadding: 5,
-            tickRotation: 0,
-            legend: "count",
-            legendOffset: -40,
-            legendPosition: "middle",
-          }}
-          pointSize={10}
-          pointColor={{ theme: "background" }}
-          pointBorderWidth={2}
-          pointBorderColor={{ from: "serieColor" }}
-          pointLabelYOffset={-12}
-          useMesh={true}
-          legends={[
-            {
-              anchor: "bottom-right",
-              direction: "column",
-              justify: false,
-              translateX: 100,
-              translateY: 0,
-              itemsSpacing: 0,
-              itemDirection: "left-to-right",
-              itemWidth: 80,
-              itemHeight: 20,
-              itemOpacity: 0.75,
-              symbolSize: 12,
-              symbolShape: "circle",
-              symbolBorderColor: "rgba(0, 0, 0, .5)",
-              effects: [
-                {
-                  on: "hover",
-                  style: {
-                    itemBackground: "rgba(0, 0, 0, .03)",
-                    itemOpacity: 1,
-                  },
-                },
-              ],
-            },
-          ]}
-        />
-        */}
+        <Suspense fallback={<p>LOADING</p>}>
+          <Text>Daily task complete</Text>
+          <Plot
+            data={historyList || []}
+            layout={{
+              height: 320,
+              xaxis: {
+                showticklabels: true,
+                ticks: "",
+                range: [-0.5, historyList[0]?.x.length + 1 || 20],
+                showline: true,
+              },
+              yaxis: {
+                showticklabels: true,
+                ticks: "",
+                showline: true,
+                range: [0, history.biggerValue + 1 || 20],
+              },
+            }}
+            config={{ responsive: true, displayModeBar: false }}
+          />
+        </Suspense>
       </Box>
     </SimpleGrid>
   );
@@ -114,6 +69,7 @@ export const getServerSideProps: GetServerSideProps = async ({
     const response = await api.get("history/tasks_history");
     const tempHistory: any = response.data.history.data;
     const hashValues = new Map();
+    let biggerValue = 10;
 
     for (let x = 0; x < tempHistory.length; x++) {
       const split_Array_Finished = tempHistory[x].data.finishedAt.split(" ");
@@ -128,20 +84,35 @@ export const getServerSideProps: GetServerSideProps = async ({
       }
     }
 
-    const history: any = [];
+    const temp_x: any = [];
+    const temp_y: any = [];
 
     hashValues.forEach((value, key) => {
-      history.push({
-        x: key,
-        y: value,
-      });
+      if (value > biggerValue) biggerValue = value;
+      temp_x.push(key);
+      temp_y.push(value);
     });
+
+    const history = {
+      x: temp_x,
+      y: temp_y,
+      mode: "lines+markers",
+      line: {
+        color: "rgb(128, 0, 128)",
+        width: 1,
+      },
+      marker: {
+        color: "rgb(128, 0, 128)",
+        size: 8,
+      },
+    };
 
     return {
       props: {
         history: {
           id: "Data",
-          data: history,
+          data: [history],
+          biggerValue,
         },
       },
     };
