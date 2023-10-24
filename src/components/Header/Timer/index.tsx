@@ -24,6 +24,11 @@ import { useTimerContext } from "@/context/TimerContext";
 import { subtractTime } from "@/utils/subtractTime";
 import { api } from "@/services/api";
 
+import {
+  time_to_select_lv1,
+  time_on_timer_lv1,
+} from "../../../utils/timerOptions";
+
 interface Timer {}
 
 type TimerStatus = "RUNNING" | "STOPPED" | "PAUSED";
@@ -155,21 +160,13 @@ export function Timer() {
           </MenuButton>
           {timerStatus === "STOPPED" && (
             <MenuList>
-              <MenuItem onClick={() => setCurrentTimer("00:10:00")}>
-                10 min
-              </MenuItem>
-              <MenuItem onClick={() => setCurrentTimer("00:15:00")}>
-                15 min
-              </MenuItem>
-              <MenuItem onClick={() => setCurrentTimer("00:20:00")}>
-                20 min
-              </MenuItem>
-              <MenuItem onClick={() => setCurrentTimer("00:25:00")}>
-                25 min
-              </MenuItem>
-              <MenuItem onClick={() => setCurrentTimer("00:30:00")}>
-                30 min
-              </MenuItem>
+              {time_to_select_lv1.map((value: string, index: number) => (
+                <MenuItem
+                  onClick={() => setCurrentTimer(time_on_timer_lv1[index])}
+                >
+                  {value}
+                </MenuItem>
+              ))}
             </MenuList>
           )}
         </Menu>

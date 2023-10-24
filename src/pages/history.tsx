@@ -1,12 +1,26 @@
+import { HistoryGraph } from "@/components/HistoryGraph";
 import { api } from "../services/api";
-import { Box, SimpleGrid, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  Input,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  SimpleGrid,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
 import { GetServerSideProps } from "next";
 
 import { useEffect, useState } from "react";
 
-import { Suspense, lazy } from "react";
-
-let Plot = lazy(() => import("react-plotly.js"));
+import { Suspense } from "react";
+import { HistoryCard } from "@/components/Cards";
+import { ChevronDownIcon } from "@chakra-ui/icons";
+import { history_options } from "@/utils/historyOptions";
 
 interface HistoryItem {
   id: number;
@@ -17,8 +31,11 @@ interface HistoryItem {
 
 type HistoryList = HistoryItem[];
 
+type HistorySelector = "7 days" | "15 days" | "30 days" | "60 days" | "All";
+
 export default function History({ history }: any) {
   const [historyList, setHistoryList] = useState<any>(history);
+  const [histSelector, setHistSelector] = useState<HistorySelector>("7 days");
 
   useEffect(() => {
     if (history !== undefined) {
@@ -26,45 +43,51 @@ export default function History({ history }: any) {
     }
   }, [history]);
 
-  useEffect(() => {
-    console.log("historyList: ", historyList);
-  }, [historyList]);
-
-
   return (
     <SimpleGrid flex="1" gap="4" minChildWidth="320px" alignItems="flex-start">
-      <Box p={["6", "8"]} bg="gray.100" borderRadius={8} pb="4">
+      <Flex direction="column" p={["6", "8"]} bg="gray.100" borderRadius={8}>
+        <Flex direction="row">
+          <HistoryCard title="Completed Tasks" value="46" />
+          <HistoryCard title="Pending Tasks" value="30" margin="10px" />
+        </Flex>
+        <br />
+
+        <Menu>
+          <MenuButton
+            as={Button}
+            rightIcon={<ChevronDownIcon />}
+            bg="gray.200"
+            mb={4}
+            w={130}
+          >
+            {histSelector}
+          </MenuButton>
+
+          <MenuList zIndex={10}>
+            {history_options.map((value: HistorySelector) => (
+              <MenuItem zIndex={11} onClick={() => setHistSelector(value)}>
+                {value}
+              </MenuItem>
+            ))}
+          </MenuList>
+        </Menu>
+
         <Suspense fallback={<p>LOADING</p>}>
-          <Text>Daily task complete</Text>
-          <Plot
-            data={historyList || []}
-            layout={{
-              height: 320,
-              xaxis: {
-                showticklabels: true,
-                ticks: "",
-                range: [-0.5, historyList[0]?.x.length + 1 || 20],
-                showline: true,
-              },
-              yaxis: {
-                showticklabels: true,
-                ticks: "",
-                showline: true,
-                range: [0, history.biggerValue + 1 || 20],
-              },
-            }}
-            config={{ responsive: true, displayModeBar: false }}
-          />
+          <Flex direction="row">
+            <Stack direction="column" spacing="2">
+              <Text mb="-35" ml="2" zIndex={5}>
+                Daily task complete
+              </Text>
+              <HistoryGraph data={historyList} />
+            </Stack>
+          </Flex>
         </Suspense>
-      </Box>
+      </Flex>
     </SimpleGrid>
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async ({
-  req,
-  params,
-}) => {
+export const getServerSideProps: GetServerSideProps = async () => {
   try {
     const response = await api.get("history/tasks_history");
     const tempHistory: any = response.data.history.data;
@@ -96,14 +119,11 @@ export const getServerSideProps: GetServerSideProps = async ({
     const history = {
       x: temp_x,
       y: temp_y,
-      mode: "lines+markers",
-      line: {
-        color: "rgb(128, 0, 128)",
-        width: 1,
-      },
+      type: "bar",
+      width: 0.2,
       marker: {
         color: "rgb(128, 0, 128)",
-        size: 8,
+        size: 1,
       },
     };
 
