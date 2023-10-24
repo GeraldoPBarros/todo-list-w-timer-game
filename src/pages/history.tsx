@@ -3,8 +3,12 @@ import { api } from "../services/api";
 import {
   Box,
   Button,
+  Code,
   Flex,
   Input,
+  List,
+  ListIcon,
+  ListItem,
   Menu,
   MenuButton,
   MenuItem,
@@ -21,6 +25,7 @@ import { Suspense } from "react";
 import { HistoryCard } from "@/components/Cards";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { history_options } from "@/utils/historyOptions";
+import { MdCheckCircle } from "react-icons/md";
 
 interface HistoryItem {
   id: number;
@@ -34,7 +39,10 @@ type HistoryList = HistoryItem[];
 type HistorySelector = "7 days" | "15 days" | "30 days" | "60 days" | "All";
 
 export default function History({ history }: any) {
-  const [historyList, setHistoryList] = useState<any>(history);
+  const [historyList, setHistoryList] = useState<any>(history?.data || []);
+  const [selectedHistoryList, setSelectedHistoryList] = useState<any>(
+    history?.historyList ?? []
+  );
   const [histSelector, setHistSelector] = useState<HistorySelector>("7 days");
 
   useEffect(() => {
@@ -43,12 +51,70 @@ export default function History({ history }: any) {
     }
   }, [history]);
 
+  useEffect(() => {
+    isDayWithinRange(new Date().toString(), "7 days", history.data);
+  }, []);
+
+  useEffect(() => {
+    isDayWithinRange(new Date().toString(), histSelector, history.data);
+  }, [histSelector]);
+
+  useEffect(() => {
+    console.log("selectedHistoryList: ", selectedHistoryList);
+  }, [selectedHistoryList]);
+
+  function isDayWithinRange(
+    currentDay: string,
+    daysInThePast: string,
+    historyList: any
+  ) {
+    const currentDate = new Date(currentDay);
+    const daysAgo = new Date(currentDate);
+    const [number, unit] = daysInThePast.split(" ");
+    const tasks_on_specified_days = [];
+    const counts_on_specified_days = [];
+
+    if (unit === "days") {
+      daysAgo.setDate(currentDate.getDate() - parseInt(number, 10));
+    } else {
+      throw new Error('Unsupported time unit. Use "days"');
+    }
+
+    console.log("historyList: ", historyList);
+
+    for (let i = 0; i < historyList[0].x.length; i++) {
+      const targetDate = new Date(historyList[0].x[i]);
+
+      if (targetDate >= daysAgo && targetDate <= currentDate) {
+        tasks_on_specified_days.push(historyList[0].x[i]);
+        counts_on_specified_days.push(historyList[0].y[i]);
+      }
+    }
+    setSelectedHistoryList({
+      x: tasks_on_specified_days,
+      y: counts_on_specified_days,
+      type: "bar",
+      width: 0.2,
+      marker: {
+        color: "rgb(128, 0, 128)",
+        size: 1,
+      },
+    });
+  }
+
   return (
     <SimpleGrid flex="1" gap="4" minChildWidth="320px" alignItems="flex-start">
       <Flex direction="column" p={["6", "8"]} bg="gray.100" borderRadius={8}>
         <Flex direction="row">
-          <HistoryCard title="Completed Tasks" value="46" />
-          <HistoryCard title="Pending Tasks" value="30" margin="10px" />
+          <HistoryCard
+            title="Completed Tasks"
+            value={history.historyList.length || 0}
+          />
+          <HistoryCard
+            title="Pending Tasks"
+            value={history.countTasks ? history.countTasks : "0"}
+            margin="10px"
+          />
         </Flex>
         <br />
 
@@ -74,12 +140,34 @@ export default function History({ history }: any) {
 
         <Suspense fallback={<p>LOADING</p>}>
           <Flex direction="row">
-            <Stack direction="column" spacing="2">
+            <Stack
+              direction="column"
+              spacing="2"
+              borderRight="1px solid"
+              borderColor="gray.200"
+              mr={4}
+              pr={4}
+            >
               <Text mb="-35" ml="2" zIndex={5}>
                 Daily task complete
               </Text>
-              <HistoryGraph data={historyList} />
+              <HistoryGraph data={selectedHistoryList} />
             </Stack>
+            <List spacing="4">
+              <ListItem>
+                {history.historyList.length > 0 &&
+                  history.historyList.map((item: HistoryItem) => (
+                    <Stack direction={["row"]} spacing="8px" mb={2}>
+                      <Code colorScheme="orange" children={`${item.name}`} />
+                      <Text>{`>`}</Text>
+                      <Code
+                        colorScheme="green"
+                        children={`${item.finishedAt}`}
+                      />
+                    </Stack>
+                  ))}
+              </ListItem>
+            </List>
           </Flex>
         </Suspense>
       </Flex>
@@ -94,6 +182,9 @@ export const getServerSideProps: GetServerSideProps = async () => {
     const hashValues = new Map();
     let biggerValue = 10;
 
+    const responseTasks = await api.get("tasks/tasks_list");
+    const countTasks = responseTasks.data.tasks.data.length;
+
     for (let x = 0; x < tempHistory.length; x++) {
       const split_Array_Finished = tempHistory[x].data.finishedAt.split(" ");
       const finished_at_Data = `${split_Array_Finished[0]} ${split_Array_Finished[1]} ${split_Array_Finished[2]}`;
@@ -106,6 +197,14 @@ export const getServerSideProps: GetServerSideProps = async () => {
         );
       }
     }
+
+    const historyList: HistoryList = tempHistory.map(function (histData: any) {
+      return {
+        name: histData.data.name,
+        createdAt: histData.data.createdAt,
+        finishedAt: histData.data.finishedAt,
+      };
+    });
 
     const temp_x: any = [];
     const temp_y: any = [];
@@ -133,6 +232,8 @@ export const getServerSideProps: GetServerSideProps = async () => {
           id: "Data",
           data: [history],
           biggerValue,
+          historyList,
+          countTasks,
         },
       },
     };

@@ -55,14 +55,11 @@ export default function History(rewards: RewardsList) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async ({
-  req,
-  params,
-}) => {
+export const getServerSideProps: GetServerSideProps = async () => {
   try {
     const response = await api.get("rewards/manage_rewards");
     const tempRewards: any = response.data.rewards.data;
-    
+
     const rewards: RewardsList = tempRewards.map(function (rewardsData: any) {
       return {
         time: rewardsData.data.time,
