@@ -22,6 +22,7 @@ export function HistoryGraph({ data }: any) {
               ticks: "",
               range: [-0.5, data[0]?.x?.length + 1 || 20],
               showline: true,
+              tickangle: 55,
             },
             yaxis: {
               showticklabels: true,

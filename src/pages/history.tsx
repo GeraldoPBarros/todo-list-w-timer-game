@@ -14,8 +14,10 @@ import {
   MenuItem,
   MenuList,
   SimpleGrid,
+  Skeleton,
   Stack,
   Text,
+  useMediaQuery,
 } from "@chakra-ui/react";
 import { GetServerSideProps } from "next";
 
@@ -25,7 +27,6 @@ import { Suspense } from "react";
 import { HistoryCard } from "@/components/Cards";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { history_options } from "@/utils/historyOptions";
-import { MdCheckCircle } from "react-icons/md";
 
 interface HistoryItem {
   id: number;
@@ -36,32 +37,32 @@ interface HistoryItem {
 
 type HistoryList = HistoryItem[];
 
-type HistorySelector = "7 days" | "15 days" | "30 days" | "60 days" | "All";
+type HistorySelector = "7 days" | "15 days" | "30 days" | "60 days"; // | "All";
 
 export default function History({ history }: any) {
-  const [historyList, setHistoryList] = useState<any>(history?.data || []);
+  const [isLargerThan1200] = useMediaQuery("(min-width: 1200px)");
+
+  const [historyList, setHistoryList] = useState<any>(
+    history?.historyList || []
+  );
   const [selectedHistoryList, setSelectedHistoryList] = useState<any>(
     history?.historyList ?? []
   );
   const [histSelector, setHistSelector] = useState<HistorySelector>("7 days");
 
   useEffect(() => {
-    if (history !== undefined) {
-      setHistoryList(history.data);
-    }
-  }, [history]);
-
-  useEffect(() => {
     isDayWithinRange(new Date().toString(), "7 days", history.data);
+    isTasksWithinDayRange(new Date().toString(), "7 days", history.historyList);
   }, []);
 
   useEffect(() => {
     isDayWithinRange(new Date().toString(), histSelector, history.data);
+    isTasksWithinDayRange(
+      new Date().toString(),
+      histSelector,
+      history.historyList
+    );
   }, [histSelector]);
-
-  useEffect(() => {
-    console.log("selectedHistoryList: ", selectedHistoryList);
-  }, [selectedHistoryList]);
 
   function isDayWithinRange(
     currentDay: string,
@@ -80,8 +81,6 @@ export default function History({ history }: any) {
       throw new Error('Unsupported time unit. Use "days"');
     }
 
-    console.log("historyList: ", historyList);
-
     for (let i = 0; i < historyList[0].x.length; i++) {
       const targetDate = new Date(historyList[0].x[i]);
 
@@ -94,12 +93,38 @@ export default function History({ history }: any) {
       x: tasks_on_specified_days,
       y: counts_on_specified_days,
       type: "bar",
-      width: 0.2,
+      width: 0.5,
       marker: {
         color: "rgb(128, 0, 128)",
         size: 1,
       },
     });
+  }
+
+  function isTasksWithinDayRange(
+    currentDay: string,
+    daysInThePast: string,
+    historyList: any
+  ) {
+    const currentDate = new Date(currentDay);
+    const daysAgo = new Date(currentDate);
+    const [number, unit] = daysInThePast.split(" ");
+    const tasks_on_specified_days = [];
+
+    if (unit === "days") {
+      daysAgo.setDate(currentDate.getDate() - parseInt(number, 10));
+    } else {
+      throw new Error('Unsupported time unit. Use "days"');
+    }
+
+    for (let i = 0; i < historyList.length; i++) {
+      const targetDate = new Date(historyList[i].finishedAt);
+
+      if (targetDate >= daysAgo && targetDate <= currentDate) {
+        tasks_on_specified_days.push(historyList[i]);
+      }
+    }
+    setHistoryList(tasks_on_specified_days);
   }
 
   return (
@@ -122,7 +147,7 @@ export default function History({ history }: any) {
           <MenuButton
             as={Button}
             rightIcon={<ChevronDownIcon />}
-            bg="gray.200"
+            bg="gray.50"
             mb={4}
             w={130}
           >
@@ -138,15 +163,37 @@ export default function History({ history }: any) {
           </MenuList>
         </Menu>
 
-        <Suspense fallback={<p>LOADING</p>}>
-          <Flex direction="row">
+        <Suspense
+          fallback={
+            <Stack
+              h={300}
+              w={1000}
+              direction={isLargerThan1200 ? "row" : "column"}
+            >
+              <Box h={400} w={450}>
+                <Skeleton height="30px" mb={4} mt={20} />
+                <Skeleton height="30px" mb={4} />
+                <Skeleton height="30px" mb={4} />
+                <Text>Loading ... </Text>
+              </Box>
+              <Box h={400} w={450} ml={8}>
+                <Skeleton height="30px" mb={4} mt={20} />
+                <Skeleton height="30px" mb={4} />
+                <Skeleton height="30px" mb={4} />
+              </Box>
+            </Stack>
+          }
+        >
+          <Flex direction={isLargerThan1200 ? "row" : "column"}>
             <Stack
               direction="column"
               spacing="2"
-              borderRight="1px solid"
-              borderColor="gray.200"
+              borderRight={isLargerThan1200 ? "1px solid" : "none"}
+              borderColor={isLargerThan1200 ? "gray.200" : "none"}
               mr={4}
+              mb={5}
               pr={4}
+              w={520}
             >
               <Text mb="-35" ml="2" zIndex={5}>
                 Daily task complete
@@ -155,8 +202,8 @@ export default function History({ history }: any) {
             </Stack>
             <List spacing="4">
               <ListItem>
-                {history.historyList.length > 0 &&
-                  history.historyList.map((item: HistoryItem) => (
+                {historyList.length > 0 &&
+                  historyList.map((item: HistoryItem) => (
                     <Stack direction={["row"]} spacing="8px" mb={2}>
                       <Code colorScheme="orange" children={`${item.name}`} />
                       <Text>{`>`}</Text>
