@@ -1,6 +1,12 @@
 import { Avatar, Flex, Text } from "@chakra-ui/react";
 import { StarIcon } from "@chakra-ui/icons";
 
+import { useRewardsContext } from "../../context/RewardsContext";
+
+import { calculateParticipantLevel } from "../../utils/levelSystem";
+
+import { useEffect, useState } from "react";
+
 interface ProfileProps {
   showProfileData?: boolean;
   participantLvl?: string;
@@ -8,6 +14,18 @@ interface ProfileProps {
 }
 
 export default function Profile({ showProfileData = true }: ProfileProps) {
+  const { currentRewards } = useRewardsContext();
+  const [percentageLevel, setPercentageLevel] = useState<string>("");
+  const [participantLevel, setParticipantLevel] = useState<string>("");
+
+  useEffect(() => {
+    if (currentRewards?.length > 0) {
+      const percentageToNextLvl = calculateParticipantLevel(currentRewards);
+      setPercentageLevel(percentageToNextLvl[1].toFixed(2) + "%");
+      setParticipantLevel(`${percentageToNextLvl[0]}`);
+    }
+  }, [currentRewards]);
+
   return (
     <Flex align="center">
       {showProfileData && (
@@ -20,7 +38,7 @@ export default function Profile({ showProfileData = true }: ProfileProps) {
           <Text>Geraldo Barros</Text>
           <Text color="gray.300" fontSize="small">
             <StarIcon boxSize={3} pb={1} />
-            Level 1: 50%
+            {`Lvl ${participantLevel}: ${percentageLevel}`}
           </Text>
         </Flex>
       )}

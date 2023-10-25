@@ -20,6 +20,8 @@ import { GetServerSideProps } from "next";
 
 import { CheckboxComponent } from "../components/Checkbox";
 
+import { useRewardsContext } from "../context/RewardsContext";
+
 import { api } from "../services/api";
 
 interface Item {
@@ -32,6 +34,11 @@ interface Item {
 
 type ListItems = Item[];
 
+interface RewardsArray {
+  time: string;
+  date: string;
+}
+
 export default function Home({ tasks }: any) {
   const [isInsertStatus, setIsInsertStatus] = useState<boolean>(true);
   const [insertText, setInsertText] = useState<string>("");
@@ -39,10 +46,14 @@ export default function Home({ tasks }: any) {
   const [currentDay, setCurrentDay] = useState<string>("");
   const [archiveSpinner, setArchiveSpinner] = useState<boolean>(false);
 
+  const { setCurrentRewards } = useRewardsContext();
+  
+
   useEffect(() => {
     console.log(new Date());
     const today = format(new Date(), "dd, MMM yyyy");
     setCurrentDay(today + ".");
+    getRewards();
   }, []);
 
   useEffect(() => {
@@ -55,8 +66,12 @@ export default function Home({ tasks }: any) {
     }
   }, [tasks]);
 
+  async function getRewards() {
+    const responseRewards = await api.get("api/rewards/manage_rewards");
+    setCurrentRewards(responseRewards.data.rewards.data);
+  }
+
   const removeItemById = (idToRemove: number) => {
-    console.log("ids: ", idToRemove);
     const updatedList = todoList.filter((item) => item.id !== idToRemove);
     setTodoList(updatedList);
   };

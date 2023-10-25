@@ -4,13 +4,13 @@ import { fauna } from "../../../services/fauna";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "GET") {
-    const task_list = await fauna.query(
+    const rewards = await fauna.query(
       q.Map(
         q.Paginate(q.Documents(q.Collection("rewards"))),
         q.Lambda((task) => q.Get(task))
       )
     );
-    return res.status(200).json({ rewards: task_list });
+    return res.status(200).json({ rewards: rewards });
   }
 
   if (req.method === "PUT") {
