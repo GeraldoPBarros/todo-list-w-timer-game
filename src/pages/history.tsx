@@ -27,6 +27,7 @@ import { Suspense } from "react";
 import { HistoryCard } from "@/components/Cards";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { history_options } from "@/utils/historyOptions";
+import { useRewardsContext } from "@/context/RewardsContext";
 
 interface HistoryItem {
   id: number;
@@ -50,9 +51,12 @@ export default function History({ history }: any) {
   );
   const [histSelector, setHistSelector] = useState<HistorySelector>("7 days");
 
+  const { getRewards } = useRewardsContext();
+
   useEffect(() => {
     isDayWithinRange(new Date().toString(), "7 days", history.data);
     isTasksWithinDayRange(new Date().toString(), "7 days", history.historyList);
+    getRewards();
   }, []);
 
   useEffect(() => {

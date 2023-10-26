@@ -1,3 +1,4 @@
+import { api } from "@/services/api";
 import { useContext, createContext, ReactNode, useState } from "react";
 
 interface Rewards {
@@ -9,7 +10,7 @@ interface Rewards {
 
 type TimerContextData = {
   currentRewards: Rewards[];
-  setCurrentRewards: (rewards: Rewards[]) => void;
+  getRewards: () => void;
 };
 
 type AuthProviderProps = {
@@ -21,11 +22,16 @@ export const TimerContext = createContext({} as TimerContextData);
 export function RewardsProvider({ children }: AuthProviderProps) {
   const [currentRewards, setCurrentRewards] = useState<Rewards[]>([]);
 
+  async function getRewards() {
+    const responseRewards = await api.get("api/rewards/manage_rewards");
+    setCurrentRewards(responseRewards.data.rewards.data);
+  }
+
   return (
     <TimerContext.Provider
       value={{
         currentRewards,
-        setCurrentRewards,
+        getRewards,
       }}
     >
       {children}

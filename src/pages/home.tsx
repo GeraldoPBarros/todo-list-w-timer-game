@@ -34,11 +34,6 @@ interface Item {
 
 type ListItems = Item[];
 
-interface RewardsArray {
-  time: string;
-  date: string;
-}
-
 export default function Home({ tasks }: any) {
   const [isInsertStatus, setIsInsertStatus] = useState<boolean>(true);
   const [insertText, setInsertText] = useState<string>("");
@@ -46,8 +41,7 @@ export default function Home({ tasks }: any) {
   const [currentDay, setCurrentDay] = useState<string>("");
   const [archiveSpinner, setArchiveSpinner] = useState<boolean>(false);
 
-  const { setCurrentRewards } = useRewardsContext();
-  
+  const { getRewards } = useRewardsContext();
 
   useEffect(() => {
     console.log(new Date());
@@ -65,11 +59,6 @@ export default function Home({ tasks }: any) {
       setTodoList(todoArr);
     }
   }, [tasks]);
-
-  async function getRewards() {
-    const responseRewards = await api.get("api/rewards/manage_rewards");
-    setCurrentRewards(responseRewards.data.rewards.data);
-  }
 
   const removeItemById = (idToRemove: number) => {
     const updatedList = todoList.filter((item) => item.id !== idToRemove);
@@ -196,11 +185,7 @@ export default function Home({ tasks }: any) {
           <Flex direction="column">
             {todoList.length > 0 &&
               todoList.map((item: Item) => (
-                <Stack
-                  direction={["row"]}
-                  spacing="8px"
-                  alignItems="center"
-                >
+                <Stack direction={["row"]} spacing="8px" alignItems="center">
                   <CheckboxComponent
                     item={item}
                     isFinished={item.isFinished}

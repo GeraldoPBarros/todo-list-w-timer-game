@@ -13,6 +13,7 @@ import { MdCheckCircle } from "react-icons/md";
 import { GetServerSideProps } from "next";
 
 import { useEffect, useState } from "react";
+import { useRewardsContext } from "@/context/RewardsContext";
 
 interface RewardsItem {
   time: string;
@@ -23,6 +24,12 @@ type RewardsList = RewardsItem[];
 
 export default function History(rewards: RewardsList) {
   const [rewardsList, setRewardsList] = useState<any>(rewards);
+
+  const { getRewards } = useRewardsContext();
+
+  useEffect(() => {
+    getRewards();
+  }, []);
 
   useEffect(() => {
     setRewardsList(rewards);

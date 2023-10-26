@@ -28,6 +28,7 @@ import {
   time_to_select_lv1,
   time_on_timer_lv1,
 } from "../../../utils/timerOptions";
+import { useRewardsContext } from "@/context/RewardsContext";
 
 interface Timer {}
 
@@ -43,6 +44,7 @@ export function Timer() {
     useTimerContext();
 
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { getRewards } = useRewardsContext();
 
   useEffect(() => {
     if (timerStatus === "RUNNING") {
@@ -100,6 +102,8 @@ export function Timer() {
       time: finalTime,
       date: format(new Date(), "dd, MMM yyyy pp"),
     });
+
+    getRewards();
     setCurrentTimer("Select");
   };
 
