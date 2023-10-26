@@ -14,10 +14,12 @@ import { GetServerSideProps } from "next";
 
 import { useEffect, useState } from "react";
 import { useRewardsContext } from "@/context/RewardsContext";
+import { calculateParticipantLevel } from "@/utils/levelSystem";
 
 interface RewardsItem {
   time: string;
   date: string;
+  advancedPercentage: string;
 }
 
 type RewardsList = RewardsItem[];
@@ -50,8 +52,13 @@ export default function History(rewards: RewardsList) {
                   />
                   <Text>{`.`}</Text>
                   <Code
-                    colorScheme="green"
+                    colorScheme="yellow"
                     children={`Working time: ${item.time}`}
+                  />
+                  <Text>{`.`}</Text>
+                  <Code
+                    colorScheme="green"
+                    children={`+ ${item.advancedPercentage}%`}
                   />
                 </Stack>
               ))}
@@ -66,11 +73,32 @@ export const getServerSideProps: GetServerSideProps = async () => {
   try {
     const response = await api.get("rewards/manage_rewards");
     const tempRewards: any = response.data.rewards.data;
+    let temp_rewards_percentages = [];
+    let rewards_percentages: number[] = [];
+    let last_sum = 0;
 
-    const rewards: RewardsList = tempRewards.map(function (rewardsData: any) {
+    for (let x = 0; x < tempRewards.length; x++) {
+      temp_rewards_percentages.push(tempRewards[x]);
+      const current_status_array = calculateParticipantLevel(
+        temp_rewards_percentages
+      );
+      
+      const how_much_increased =
+        rewards_percentages.length > 0
+          ? current_status_array[1] - last_sum
+          : current_status_array[1];
+      rewards_percentages.push(how_much_increased);
+      last_sum = current_status_array[1];
+    }
+
+    const rewards: RewardsList = tempRewards.map(function (
+      rewardsData: any,
+      index: number
+    ) {
       return {
         time: rewardsData.data.time,
         date: rewardsData.data.date,
+        advancedPercentage: `${rewards_percentages[index].toFixed(2)}`,
       };
     });
 

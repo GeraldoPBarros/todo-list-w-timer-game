@@ -55,9 +55,9 @@ export function Timer() {
     }
   }, [timerStatus]);
 
-  useEffect(() => {
-    console.log("initialTime: ", initialTime);
-  }, [initialTime]);
+  // useEffect(() => {
+  //   console.log("initialTime: ", initialTime);
+  // }, [initialTime]);
 
   useEffect(() => {
     if (timerStatus == "RUNNING") {
