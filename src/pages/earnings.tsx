@@ -71,11 +71,12 @@ export default function History(rewards: RewardsList) {
 
 export const getServerSideProps: GetServerSideProps = async () => {
   try {
-    const response = await api.get("rewards/manage_rewards");
-    const tempRewards: any = response.data.rewards.data;
     let temp_rewards_percentages = [];
     let rewards_percentages: number[] = [];
     let last_sum = 0;
+
+    const response = await api.get("rewards/manage_rewards");
+    const tempRewards: any = response.data.rewards.data;
 
     for (let x = 0; x < tempRewards.length; x++) {
       temp_rewards_percentages.push(tempRewards[x]);

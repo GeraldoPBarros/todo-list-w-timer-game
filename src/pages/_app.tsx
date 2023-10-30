@@ -9,9 +9,8 @@ import { Sidebar } from "@/components/Sidebar";
 import { useEffect, useState } from "react";
 import { TimerProvider } from "@/context/TimerContext";
 import { SidebarDrawerProvider } from "@/context/SidebarDrawerContext";
-import { GetServerSideProps } from "next";
-import { api } from "@/services/api";
 import { RewardsProvider } from "@/context/RewardsContext";
+import { AuthProvider } from "@/context/AuthContext";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const { pathname } = useRouter();
@@ -28,19 +27,21 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   return (
     <ChakraProvider theme={theme}>
-      <SidebarDrawerProvider>
-        <TimerProvider>
-          <RewardsProvider>
-            {pathname !== "/" && <Header />}
-            <Flex direction="column" h="100vh">
-              <Flex w="100%" my="6" maxWidth={1480} mx="auto" px="6">
-                {pathname !== "/" && <Sidebar />}
-                <Component {...pageProps} />
+      <AuthProvider>
+        <SidebarDrawerProvider>
+          <TimerProvider>
+            <RewardsProvider>
+              {pathname !== "/" && <Header />}
+              <Flex direction="column" h="100vh">
+                <Flex w="100%" my="6" maxWidth={1480} mx="auto" px="6">
+                  {pathname !== "/" && <Sidebar />}
+                  <Component {...pageProps} />
+                </Flex>
               </Flex>
-            </Flex>
-          </RewardsProvider>s
-        </TimerProvider>
-      </SidebarDrawerProvider>
+            </RewardsProvider>
+          </TimerProvider>
+        </SidebarDrawerProvider>
+      </AuthProvider>
     </ChakraProvider>
   );
 }

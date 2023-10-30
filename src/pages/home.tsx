@@ -23,6 +23,7 @@ import { CheckboxComponent } from "../components/Checkbox";
 import { useRewardsContext } from "../context/RewardsContext";
 
 import { api } from "../services/api";
+import { useAuth } from "@/context/AuthContext";
 
 interface Item {
   id: number;
@@ -42,12 +43,14 @@ export default function Home({ tasks }: any) {
   const [archiveSpinner, setArchiveSpinner] = useState<boolean>(false);
 
   const { getRewards } = useRewardsContext();
+  const { user } = useAuth();
 
   useEffect(() => {
     console.log(new Date());
     const today = format(new Date(), "dd, MMM yyyy");
     setCurrentDay(today + ".");
     getRewards();
+    console.log("user: ", user);
   }, []);
 
   useEffect(() => {

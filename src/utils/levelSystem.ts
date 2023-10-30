@@ -6,11 +6,11 @@ interface RewardsArray {
 }
 
 export const levels = [
-  [0, 89],
-  [90, 179],
-  [180, 359],
-  [360, 719],
-  [720, 1000000],
+  [0, 89.9999999999],
+  [90, 179.9999999999],
+  [180, 359.9999999999],
+  [360, 719.9999999999],
+  [720, 1000000.9999999999],
 ];
 
 export function calculateParticipantLevel(timeArray: RewardsArray[]) {

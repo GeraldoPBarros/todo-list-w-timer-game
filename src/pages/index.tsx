@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Flex, Button, Stack } from "@chakra-ui/react";
 
@@ -7,6 +8,7 @@ import * as yup from "yup";
 
 import { Input } from "../components/Form/Input";
 import Logo from "@/components/Header/Logo";
+import { useAuth } from "@/context/AuthContext";
 
 type SignInFormData = {
   email: string;
@@ -22,15 +24,24 @@ export default function SigIn() {
   const { register, handleSubmit, formState } = useForm({
     resolver: yupResolver(signInFormSchema),
   });
-
+  const { signIn, user } = useAuth();
   const { errors } = formState;
   const router = useRouter();
 
-  const handleSignIn: SubmitHandler<SignInFormData> = async (values) => {
-    console.log(values);
-    if (values.email === "test@test.com" && values.password === "123456") {
+  useEffect(() => {
+    if (user != null) {
       router.push("/home", { scroll: false });
     }
+  }, [user]);
+
+  const handleSignIn: SubmitHandler<SignInFormData> = async (values) => {
+    console.log(values);
+    try {
+      signIn({ email: values.email, password: values.password });
+    } catch (err) {
+      console.log(err);
+    }
+    // router.push("/api/auth/signin", { scroll: false });
     await new Promise((resolve) => setTimeout(resolve, 2000));
   };
 
