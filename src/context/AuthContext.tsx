@@ -11,6 +11,7 @@ import { setCookie, destroyCookie } from "nookies";
 import { signInWithEmailAndPassword } from "firebase/auth";
 
 import { auth } from "../services/fire";
+import { useToast } from "@chakra-ui/react";
 
 type User = {
   id: string;
@@ -54,6 +55,7 @@ export const AuthContext = createContext({} as AuthContextData);
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<any>(null);
   const isAuthenticated = !!user;
+  const toast = useToast();
 
   useEffect(() => {
     auth.onAuthStateChanged((user: any) => {
@@ -89,6 +91,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         Router.push("/home");
       } catch (err) {
         console.log("ERROR: ", err);
+        toast({
+          position: "top",
+          title: "Error! Invalid credentials.",
+          status: "error",
+          containerStyle: {
+            width: "400px",
+          },
+        });
       }
     } catch (err) {}
   }

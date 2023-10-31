@@ -11,10 +11,12 @@ import {
 } from "@chakra-ui/react";
 import { MdCheckCircle } from "react-icons/md";
 import { GetServerSideProps } from "next";
+import { useRouter } from "next/navigation";
 
 import { useEffect, useState } from "react";
 import { useRewardsContext } from "@/context/RewardsContext";
 import { calculateParticipantLevel } from "@/utils/levelSystem";
+import { useAuth } from "@/context/AuthContext";
 
 interface RewardsItem {
   time: string;
@@ -29,8 +31,16 @@ export default function History(rewards: RewardsList) {
 
   const { getRewards } = useRewardsContext();
 
+  const { user, signOut } = useAuth();
+  const router = useRouter();
+
   useEffect(() => {
-    getRewards();
+    if (user === null) {
+      signOut();
+      router.push("/", { scroll: false });
+    } else {
+      getRewards();
+    }
   }, []);
 
   useEffect(() => {
@@ -83,7 +93,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
       const current_status_array = calculateParticipantLevel(
         temp_rewards_percentages
       );
-      
+
       const how_much_increased =
         rewards_percentages.length > 0
           ? current_status_array[1] - last_sum

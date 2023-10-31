@@ -17,6 +17,7 @@ import {
 import { AddIcon, CloseIcon, DownloadIcon } from "@chakra-ui/icons";
 import { MdArchive } from "react-icons/md";
 import { GetServerSideProps } from "next";
+import { useRouter } from "next/navigation";
 
 import { CheckboxComponent } from "../components/Checkbox";
 
@@ -43,14 +44,19 @@ export default function Home({ tasks }: any) {
   const [archiveSpinner, setArchiveSpinner] = useState<boolean>(false);
 
   const { getRewards } = useRewardsContext();
-  const { user } = useAuth();
+
+  const { user, signOut } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
-    console.log(new Date());
-    const today = format(new Date(), "dd, MMM yyyy");
-    setCurrentDay(today + ".");
-    getRewards();
-    console.log("user: ", user);
+    if (user === null) {
+      signOut();
+      router.push("/", { scroll: false });
+    } else {
+      const today = format(new Date(), "dd, MMM yyyy");
+      setCurrentDay(today + ".");
+      getRewards();
+    }
   }, []);
 
   useEffect(() => {

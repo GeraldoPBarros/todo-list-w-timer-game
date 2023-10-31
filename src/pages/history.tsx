@@ -5,9 +5,7 @@ import {
   Button,
   Code,
   Flex,
-  Input,
   List,
-  ListIcon,
   ListItem,
   Menu,
   MenuButton,
@@ -22,12 +20,14 @@ import {
 import { GetServerSideProps } from "next";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { Suspense } from "react";
 import { HistoryCard } from "@/components/Cards";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { history_options } from "@/utils/historyOptions";
 import { useRewardsContext } from "@/context/RewardsContext";
+import { useAuth } from "@/context/AuthContext";
 
 interface HistoryItem {
   id: number;
@@ -53,10 +53,22 @@ export default function History({ history }: any) {
 
   const { getRewards } = useRewardsContext();
 
+  const { user, signOut } = useAuth();
+  const router = useRouter();
+
   useEffect(() => {
-    isDayWithinRange(new Date().toString(), "7 days", history.data);
-    isTasksWithinDayRange(new Date().toString(), "7 days", history.historyList);
-    getRewards();
+    if (user === null) {
+      signOut();
+      router.push("/", { scroll: false });
+    } else {
+      isDayWithinRange(new Date().toString(), "7 days", history.data);
+      isTasksWithinDayRange(
+        new Date().toString(),
+        "7 days",
+        history.historyList
+      );
+      getRewards();
+    }
   }, []);
 
   useEffect(() => {

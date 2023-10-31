@@ -46,6 +46,8 @@ export function Timer() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { getRewards } = useRewardsContext();
 
+  const audio = new Audio("/audio/notification.mp3");
+
   useEffect(() => {
     if (timerStatus === "RUNNING") {
       setIsTimerRunning(true);
@@ -102,7 +104,7 @@ export function Timer() {
       time: finalTime,
       date: format(new Date(), "dd, MMM yyyy pp"),
     });
-
+    audio.play();
     getRewards();
     setCurrentTimer("Select");
   };

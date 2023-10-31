@@ -24,9 +24,13 @@ export default function SigIn() {
   const { register, handleSubmit, formState } = useForm({
     resolver: yupResolver(signInFormSchema),
   });
-  const { signIn, user } = useAuth();
+  const { signIn, user, signOut } = useAuth();
   const { errors } = formState;
   const router = useRouter();
+
+  // useEffect(() => {
+  //   signOut();
+  // }, []);
 
   useEffect(() => {
     if (user != null) {
@@ -35,14 +39,12 @@ export default function SigIn() {
   }, [user]);
 
   const handleSignIn: SubmitHandler<SignInFormData> = async (values) => {
-    console.log(values);
     try {
       signIn({ email: values.email, password: values.password });
     } catch (err) {
       console.log(err);
     }
-    // router.push("/api/auth/signin", { scroll: false });
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   };
 
   return (
