@@ -59,7 +59,6 @@ export default function History({ history }: any) {
   useEffect(() => {
     if (user === null) {
       signOut();
-      router.push("/", { scroll: false });
     } else {
       isDayWithinRange(new Date().toString(), "7 days", history.data);
       isTasksWithinDayRange(

@@ -1,4 +1,12 @@
-import { Avatar, Flex, Text } from "@chakra-ui/react";
+import {
+  Avatar,
+  Flex,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Text,
+} from "@chakra-ui/react";
 import { StarIcon } from "@chakra-ui/icons";
 
 import { useRewardsContext } from "../../context/RewardsContext";
@@ -6,6 +14,8 @@ import { useRewardsContext } from "../../context/RewardsContext";
 import { calculateParticipantLevel } from "../../utils/levelSystem";
 
 import { useEffect, useState } from "react";
+import { MdOutlineExitToApp, MdSettings } from "react-icons/md";
+import { useAuth } from "@/context/AuthContext";
 
 interface ProfileProps {
   showProfileData?: boolean;
@@ -17,6 +27,8 @@ export default function Profile({ showProfileData = true }: ProfileProps) {
   const { currentRewards } = useRewardsContext();
   const [percentageLevel, setPercentageLevel] = useState<string>("");
   const [participantLevel, setParticipantLevel] = useState<string>("");
+
+  const { signOut } = useAuth();
 
   useEffect(() => {
     if (currentRewards?.length > 0) {
@@ -42,12 +54,23 @@ export default function Profile({ showProfileData = true }: ProfileProps) {
           </Text>
         </Flex>
       )}
-
-      <Avatar
-        size="md"
-        name="Geraldo Barros"
-        src="https://github.com/GeraldoPBarros.png"
-      />
+      <Menu>
+        <MenuButton>
+          <Avatar
+            size="md"
+            name="Geraldo Barros"
+            src="https://github.com/GeraldoPBarros.png"
+          />
+        </MenuButton>
+        <MenuList w={100}>
+          <MenuItem icon={<MdSettings />} color={"gray.200"}>
+            User Settings
+          </MenuItem>
+          <MenuItem icon={<MdOutlineExitToApp />} onClick={() => signOut()}>
+            Sign Out
+          </MenuItem>
+        </MenuList>
+      </Menu>
     </Flex>
   );
 }

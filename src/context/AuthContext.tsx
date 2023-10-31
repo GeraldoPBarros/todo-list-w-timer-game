@@ -45,7 +45,6 @@ type AuthProviderProps = {
 export function signOut() {
   destroyCookie(undefined, "todo-list.token");
 
-  // authChannel.postMessage("signOut");
   auth.signOut();
   Router.push("/");
 }
@@ -72,7 +71,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   function signOut() {
     destroyCookie(undefined, "cda.token");
 
-    // authChannel.postMessage("signOut");
     auth.signOut();
     Router.push("/");
   }

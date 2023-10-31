@@ -14,7 +14,7 @@ import {
   Icon,
 } from "@chakra-ui/react";
 
-import { AddIcon, CloseIcon, DownloadIcon } from "@chakra-ui/icons";
+import { AddIcon, CloseIcon } from "@chakra-ui/icons";
 import { MdArchive } from "react-icons/md";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/navigation";
@@ -51,7 +51,6 @@ export default function Home({ tasks }: any) {
   useEffect(() => {
     if (user === null) {
       signOut();
-      router.push("/", { scroll: false });
     } else {
       const today = format(new Date(), "dd, MMM yyyy");
       setCurrentDay(today + ".");

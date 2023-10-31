@@ -37,7 +37,6 @@ export default function History(rewards: RewardsList) {
   useEffect(() => {
     if (user === null) {
       signOut();
-      router.push("/", { scroll: false });
     } else {
       getRewards();
     }
