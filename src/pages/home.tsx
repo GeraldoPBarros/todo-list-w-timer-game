@@ -26,6 +26,16 @@ import { useRewardsContext } from "../context/RewardsContext";
 import { api } from "../services/api";
 import { useAuth } from "@/context/AuthContext";
 
+interface TagItem {
+  id: number;
+  name: string;
+  createdAt: string;
+}
+
+type TagList = {
+  tags: TagItem[];
+};
+
 interface Item {
   id: number;
   name: string;
@@ -36,7 +46,7 @@ interface Item {
 
 type ListItems = Item[];
 
-export default function Home({ tasks }: any) {
+export default function Home({ tasks, tags }: any) {
   const [isInsertStatus, setIsInsertStatus] = useState<boolean>(true);
   const [insertText, setInsertText] = useState<string>("");
   const [todoList, setTodoList] = useState<ListItems>([]);
@@ -258,6 +268,18 @@ export const getServerSideProps: GetServerSideProps = async ({
     const response = await api.get("tasks/tasks_list");
     const tempTasks: any = response.data.tasks.data;
     // console.log("TASKS: ", response.data.tasks.data[0].ref["@ref"].id);
+
+    const responseTags = await api.get("tags/tag_manager");
+    const tempTags: any = responseTags.data.tags.data;
+
+    const tags: TagList = tempTags.map(function (tagData: any, index: number) {
+      return {
+        id: tagData.ref["@ref"].id,
+        name: tagData.data.name,
+        createdAt: tagData.data.createdAt,
+      };
+    });
+
     const tasks: ListItems = tempTasks.map(function (task: any, index: any) {
       return {
         id: task.ref["@ref"].id,
@@ -265,18 +287,21 @@ export const getServerSideProps: GetServerSideProps = async ({
         isFinished: task.data.isFinished,
         idBd: task.ref["@ref"].id,
         createdAt: task.data.createdAt,
+        tags: tags,
       };
     });
 
     return {
       props: {
         tasks: tasks,
+        tags: tags,
       },
     };
   } catch (err) {
     return {
       props: {
         tasks: [],
+        tags: [],
       },
     };
   }
