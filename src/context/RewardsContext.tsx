@@ -21,6 +21,7 @@ type UpdateRewardsType = "UPDATE" | "NOTHING";
 type RewardsContextData = {
   currentRewards: Rewards[];
   notifications: NotificationsType[];
+  setNotifications: (data: NotificationsType[]) => void;
   getRewards: (type: UpdateRewardsType) => void;
   updateNotifications: (rewards: Rewards[]) => void;
 };
@@ -67,6 +68,7 @@ export function RewardsProvider({ children }: AuthProviderProps) {
       value={{
         currentRewards,
         notifications,
+        setNotifications,
         getRewards,
         updateNotifications,
       }}
