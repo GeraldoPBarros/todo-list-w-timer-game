@@ -66,7 +66,7 @@ export default function History({ history }: any) {
         "7 days",
         history.historyList
       );
-      getRewards();
+      getRewards("NOTHING");
     }
   }, []);
 

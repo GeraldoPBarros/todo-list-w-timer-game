@@ -97,7 +97,7 @@ export function Timer() {
     };
   }, [timerStatus, currentTimer]);
 
-  const finishTimer = (action: TimerStatus) => {
+  function finishTimer (action: TimerStatus) {
     setTimerStatus(action);
     const finalTime = subtractTime(initialTime, currentTimer);
     api.put("api/rewards/manage_rewards", {
@@ -105,7 +105,7 @@ export function Timer() {
       date: format(new Date(), "dd, MMM yyyy pp"),
     });
     audio.play();
-    getRewards();
+    getRewards("UPDATE");
     setCurrentTimer("Select");
   };
 

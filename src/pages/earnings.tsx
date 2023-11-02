@@ -38,7 +38,7 @@ export default function History(rewards: RewardsList) {
     if (user === null) {
       signOut();
     } else {
-      getRewards();
+      getRewards("NOTHING");
     }
   }, []);
 

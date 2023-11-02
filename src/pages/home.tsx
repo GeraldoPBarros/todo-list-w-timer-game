@@ -54,7 +54,7 @@ export default function Home({ tasks }: any) {
     } else {
       const today = format(new Date(), "dd, MMM yyyy");
       setCurrentDay(today + ".");
-      getRewards();
+      getRewards("NOTHING");
     }
   }, []);
 
