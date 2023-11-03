@@ -49,6 +49,7 @@ interface Item {
   isFinished: boolean;
   idBd: any;
   createdAt: string;
+  tags?: string[];
 }
 
 type ListItems = Item[];
@@ -94,6 +95,10 @@ export default function Home({ tasks, tags }: TasksProps) {
       setTodoList(todoArr);
     }
   }, [tasks]);
+
+  useEffect(() => {
+    console.log("TASKTAGS: ", taskTags);
+  }, [taskTags]);
 
   const removeItemById = (idToRemove: number) => {
     const updatedList = todoList.filter((item) => item.id !== idToRemove);
@@ -144,11 +149,13 @@ export default function Home({ tasks, tags }: TasksProps) {
     }
   }
 
-  async function OnAddTask(text: string) {
+  async function OnAddTask(text: string, selecTags: string[]) {
+    console.log("TAGS SELECTED: ", selecTags);
     const response = await api.put("api/tasks/tasks_list", {
       name: text,
       isFinished: false,
       createdAt: format(new Date(), "dd, MMM yyyy pp"),
+      tags: selecTags,
     });
     if (response.status === 200) {
       const responseRead = await api.get("api/tasks/tasks_list");
@@ -161,9 +168,11 @@ export default function Home({ tasks, tags }: TasksProps) {
           isFinished: false,
           idBd: nTDList[nTDList.length - 1].ref["@ref"].id,
           createdAt: nTDList[nTDList.length - 1].data.createdAt,
+          tags: selecTags,
         },
       ]);
       setInsertText("");
+      setTaskTags([]);
     }
   }
 
@@ -231,20 +240,36 @@ export default function Home({ tasks, tags }: TasksProps) {
           <Flex direction="column">
             {todoList.length > 0 &&
               todoList.map((item: Item) => (
-                <Stack direction={["row"]} spacing="8px" alignItems="center">
-                  <CheckboxComponent
-                    item={item}
-                    isFinished={item.isFinished}
-                    onChangeFn={() => OnChangeCheckbox(item)}
-                  />
-                  <Text key={item?.name}>{item?.name}</Text>
-                  <Button
-                    textDecoration="none"
-                    _hover={{ textDecor: "none" }}
-                    onClick={async () => OnArchiveTask(item)}
-                  >
-                    <Icon as={MdArchive} fontSize="22" color="gray.400" />
-                  </Button>
+                <Stack direction={["column"]} spacing="4px" alignItems="flex-start">
+                  <Stack direction={["row"]} spacing="8px" alignItems="center">
+                    <CheckboxComponent
+                      item={item}
+                      isFinished={item.isFinished}
+                      onChangeFn={() => OnChangeCheckbox(item)}
+                    />
+                    <Text key={item?.name}>{item?.name}</Text>
+                    <Button
+                      textDecoration="none"
+                      _hover={{ textDecor: "none" }}
+                      onClick={async () => OnArchiveTask(item)}
+                    >
+                      <Icon as={MdArchive} fontSize="22" color="gray.400" />
+                    </Button>
+                  </Stack>
+                  <Stack direction={["row"]} spacing="4px" alignItems="center">
+                    {item?.tags !== undefined &&
+                      item?.tags.map((tagItem) => (
+                        <Tag
+                          size={"sm"}
+                          key={tagItem}
+                          borderRadius="full"
+                          variant="solid"
+                          colorScheme="linkedin"
+                        >
+                          <TagLabel>{tagItem}</TagLabel>
+                        </Tag>
+                      ))}
+                  </Stack>
                 </Stack>
               ))}
           </Flex>
@@ -288,7 +313,7 @@ export default function Home({ tasks, tags }: TasksProps) {
             <Button
               textDecoration="none"
               onClick={async () =>
-                insertText !== "" ? OnAddTask(insertText) : null
+                insertText !== "" ? OnAddTask(insertText, taskTags) : null
               }
             >
               <AddIcon boxSize={3} />
@@ -333,7 +358,7 @@ export const getServerSideProps: GetServerSideProps = async ({
         isFinished: task.data.isFinished,
         idBd: task.ref["@ref"].id,
         createdAt: task.data.createdAt,
-        tags: tags,
+        tags: task.data.tags !== undefined ? task.data.tags : [],
       };
     });
 
