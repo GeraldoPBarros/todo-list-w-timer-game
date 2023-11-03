@@ -12,10 +12,16 @@ import {
   Stack,
   Spinner,
   Icon,
+  IconButton,
+  HStack,
+  Tag,
+  TagLabel,
+  TagCloseButton,
+  useDisclosure,
 } from "@chakra-ui/react";
 
 import { AddIcon, CloseIcon } from "@chakra-ui/icons";
-import { MdArchive } from "react-icons/md";
+import { MdArchive, MdOutlineSell } from "react-icons/md";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/navigation";
 
@@ -25,6 +31,7 @@ import { useRewardsContext } from "../context/RewardsContext";
 
 import { api } from "../services/api";
 import { useAuth } from "@/context/AuthContext";
+import { InsertTagsModal } from "@/components/InsertTagsModal";
 
 interface TagItem {
   id: number;
@@ -46,19 +53,28 @@ interface Item {
 
 type ListItems = Item[];
 
-export default function Home({ tasks, tags }: any) {
+interface TasksProps {
+  tasks: any;
+  tags: TagItem[];
+}
+
+export default function Home({ tasks, tags }: TasksProps) {
   const [isInsertStatus, setIsInsertStatus] = useState<boolean>(true);
   const [insertText, setInsertText] = useState<string>("");
   const [todoList, setTodoList] = useState<ListItems>([]);
   const [currentDay, setCurrentDay] = useState<string>("");
   const [archiveSpinner, setArchiveSpinner] = useState<boolean>(false);
+  const [taskTags, setTaskTags] = useState<string[]>([]);
 
   const { getRewards } = useRewardsContext();
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const { user, signOut } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
+    console.log("tags: ", tags);
     if (user === null) {
       signOut();
     } else {
@@ -69,6 +85,7 @@ export default function Home({ tasks, tags }: any) {
   }, []);
 
   useEffect(() => {
+    console.log("TASKS: ", tasks);
     if (tasks.length > 0) {
       const todoArr = [];
       for (let x = 0; x < tasks.length; x++) {
@@ -150,8 +167,19 @@ export default function Home({ tasks, tags }: any) {
     }
   }
 
+  function removeTag(tagName: string) {
+    const newTags = taskTags.filter((tag) => tag !== tagName);
+    setTaskTags(newTags);
+  }
+
   return (
     <SimpleGrid flex="1" gap="4" minChildWidth="320px" alignItems="flex-start">
+      <InsertTagsModal
+        isOpen={isOpen}
+        onClose={onClose}
+        onEnd={setTaskTags}
+        tagList={tags}
+      />
       <Box p={["6", "8"]} bg="gray.100" borderRadius={8} pb="4">
         <Text fontSize="lg" mb="4">
           <Flex w="95%" justify="space-between">
@@ -221,6 +249,7 @@ export default function Home({ tasks, tags }: any) {
               ))}
           </Flex>
         </Text>
+        <br />
         {isInsertStatus && (
           <Button
             textDecoration="none"
@@ -233,24 +262,41 @@ export default function Home({ tasks, tags }: any) {
         )}
         {!isInsertStatus && (
           <Stack direction={["column", "row"]} spacing="8px">
-            <Input
-              placeholder="Insert Task"
-              w="300px"
-              value={insertText}
-              onChange={(e) => setInsertText(e.target.value)}
-            />
+            <Stack direction={"column"} spacing="4px">
+              <Input
+                placeholder="Insert Task"
+                w="300px"
+                value={insertText}
+                onChange={(e) => setInsertText(e.target.value)}
+              />
+              <HStack spacing={4}>
+                {taskTags.map((tag) => (
+                  <Tag
+                    size={"sm"}
+                    key={tag}
+                    borderRadius="full"
+                    variant="solid"
+                    colorScheme="green"
+                  >
+                    <TagLabel>{tag}</TagLabel>
+                    <TagCloseButton onClick={() => removeTag(tag)} />
+                  </Tag>
+                ))}
+              </HStack>
+            </Stack>
+
             <Button
               textDecoration="none"
-              _hover={{ textDecor: "none" }}
-              onClick={async () => OnAddTask(insertText)}
+              onClick={async () =>
+                insertText !== "" ? OnAddTask(insertText) : null
+              }
             >
               <AddIcon boxSize={3} />
             </Button>
-            <Button
-              textDecoration="none"
-              _hover={{ textDecor: "none" }}
-              onClick={() => CloseInsertionMode()}
-            >
+            <Button textDecoration="none" onClick={() => onOpen()}>
+              <Icon as={MdOutlineSell} />
+            </Button>
+            <Button textDecoration="none" onClick={() => CloseInsertionMode()}>
               <CloseIcon boxSize={3} />
             </Button>
           </Stack>
