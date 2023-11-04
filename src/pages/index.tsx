@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Flex, Button, Stack, Fade } from "@chakra-ui/react";
+import { Flex, Button, Stack } from "@chakra-ui/react";
 
 import { SubmitHandler, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -28,6 +28,16 @@ export default function SigIn() {
   const { errors } = formState;
   const router = useRouter();
 
+  // useEffect(() => {
+  //   signOut();
+  // }, []);
+
+  useEffect(() => {
+    if (user != null) {
+      router.push("/home", { scroll: false });
+    }
+  }, [user]);
+
   const handleSignIn: SubmitHandler<SignInFormData> = async (values) => {
     try {
       signIn({ email: values.email, password: values.password });
@@ -45,45 +55,43 @@ export default function SigIn() {
       justify="center"
       direction="column"
     >
-      <Fade in={true}>
-        <Logo isBig />
-        <br />
-        <Flex
-          as="form"
-          width="100%"
-          maxWidth={360}
-          bg="gray.100"
-          p="8"
-          borderRadius={8}
-          flexDir="column"
-          onSubmit={handleSubmit(handleSignIn)}
-        >
-          <Stack spacing="4">
-            <Input
-              type="email"
-              label="E-mail"
-              error={errors.email}
-              {...register("email")}
-            />
-            <Input
-              type="password"
-              label="Senha"
-              error={errors.password}
-              {...register("password")}
-            />
-          </Stack>
+      <Logo isBig />
+      <br />
+      <Flex
+        as="form"
+        width="100%"
+        maxWidth={360}
+        bg="gray.100"
+        p="8"
+        borderRadius={8}
+        flexDir="column"
+        onSubmit={handleSubmit(handleSignIn)}
+      >
+        <Stack spacing="4">
+          <Input
+            type="email"
+            label="E-mail"
+            error={errors.email}
+            {...register("email")}
+          />
+          <Input
+            type="password"
+            label="Senha"
+            error={errors.password}
+            {...register("password")}
+          />
+        </Stack>
 
-          <Button
-            type="submit"
-            mt="6"
-            colorScheme="green"
-            size="lg"
-            isLoading={formState.isSubmitting}
-          >
-            Entrar
-          </Button>
-        </Flex>
-      </Fade>
+        <Button
+          type="submit"
+          mt="6"
+          colorScheme="green"
+          size="lg"
+          isLoading={formState.isSubmitting}
+        >
+          Entrar
+        </Button>
+      </Flex>
     </Flex>
   );
 }

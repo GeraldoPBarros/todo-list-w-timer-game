@@ -42,13 +42,6 @@ type AuthProviderProps = {
   children: ReactNode;
 };
 
-export function signOut() {
-  destroyCookie(undefined, "todo-list.token");
-
-  auth.signOut();
-  Router.push("/");
-}
-
 export const AuthContext = createContext({} as AuthContextData);
 
 export function AuthProvider({ children }: AuthProviderProps) {
@@ -62,6 +55,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setUser((prev: any) => ({ ...prev, email: user?.email }));
       } else {
         setUser(null);
+        Router.push("/");
       }
     });
 
@@ -69,10 +63,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [auth?.currentUser]);
 
   function signOut() {
-    destroyCookie(undefined, "cda.token");
-
+    destroyCookie(undefined, "todo-list.token");
     auth.signOut();
-    Router.push("/");
   }
 
   async function signIn({ email, password }: SignInCredentials) {

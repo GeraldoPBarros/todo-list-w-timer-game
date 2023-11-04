@@ -9,6 +9,7 @@ import {
   SimpleGrid,
   Stack,
   Tag,
+  useMediaQuery,
 } from "@chakra-ui/react";
 
 import { format } from "date-fns";
@@ -37,6 +38,8 @@ export default function Tags(tags: TagList) {
   const [insertText, setInsertText] = useState<string>("");
   const { getRewards } = useRewardsContext();
 
+  const [isLargerThan750] = useMediaQuery("(min-width: 750px)");
+
   const { user, signOut } = useAuth();
 
   useEffect(() => {
@@ -46,10 +49,6 @@ export default function Tags(tags: TagList) {
       getRewards("NOTHING");
     }
   }, []);
-
-  useEffect(() => {
-    console.log("Tags: ", tags);
-  }, [tags]);
 
   async function OnAddTag(text: string) {
     const response = await api.put("api/tags/tag_manager", {
@@ -102,11 +101,18 @@ export default function Tags(tags: TagList) {
     <SimpleGrid flex="1" gap="4" minChildWidth="320px" alignItems="flex-start">
       <Fade in={true}>
         <Box p={["6", "8"]} bg="gray.100" borderRadius={8} pb="4">
-          <SimpleGrid columns={4} spacing={10}>
+          <b>Configure Your Tags</b>
+          <SimpleGrid columns={!isLargerThan750 ? 2 : 4} spacing={10} mt={4}>
             {tagList.tags.length > 0 &&
               tagList.tags.map((item: TagItem, index: any) => (
                 <Flex direction={"column"} alignItems={"flex-start"}>
-                  <Tag variant="solid" colorScheme="linkedin" w={200}>
+                  <Tag
+                    variant="solid"
+                    colorScheme="linkedin"
+                    w={200}
+                    h={35}
+                    minW={150}
+                  >
                     <Icon as={MdOutlineSell} mr={2} />
                     {item.name}{" "}
                   </Tag>
@@ -134,28 +140,27 @@ export default function Tags(tags: TagList) {
               _hover={{ textDecor: "none" }}
               color="gray.500"
               onClick={() => setIsInsertStatus(false)}
+              mt={4}
             >
               + Tag
             </Button>
           )}
           {!isInsertStatus && (
-            <Stack direction={["column", "row"]} spacing="8px">
+            <Stack direction={["column", "row"]} spacing="8px" mt={4}>
               <Input
-                placeholder="Insert Tag"
+                placeholder="Insert tag name"
                 w="300px"
                 value={insertText}
                 onChange={(e) => setInsertText(e.target.value)}
               />
               <Button
                 textDecoration="none"
-                _hover={{ textDecor: "none" }}
                 onClick={async () => OnAddTag(insertText)}
               >
                 <AddIcon boxSize={3} />
               </Button>
               <Button
                 textDecoration="none"
-                _hover={{ textDecor: "none" }}
                 onClick={() => CloseInsertionMode()}
               >
                 <CloseIcon boxSize={3} />

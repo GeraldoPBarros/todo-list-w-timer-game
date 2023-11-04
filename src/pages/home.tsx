@@ -78,7 +78,6 @@ export default function Home({ tasks, tags }: TasksProps) {
   const [isLargerThan680] = useMediaQuery("(min-width: 680px)");
 
   useEffect(() => {
-    console.log("tags: ", tags);
     if (user === null) {
       signOut();
     } else {
@@ -300,7 +299,7 @@ export default function Home({ tasks, tags }: TasksProps) {
             <Stack direction={isLargerThan680 ? "row" : "column"} spacing="8px">
               <Stack direction={"column"} spacing="4px">
                 <Input
-                  placeholder="Insert Task"
+                  placeholder="Insert task name"
                   w="300px"
                   value={insertText}
                   onChange={(e) => setInsertText(e.target.value)}

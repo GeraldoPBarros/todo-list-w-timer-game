@@ -62,10 +62,6 @@ export default function History({ history }: any) {
   const router = useRouter();
 
   useEffect(() => {
-    console.log("history: ", history);
-  }, [history]);
-
-  useEffect(() => {
     if (user === null) {
       signOut();
     } else {
@@ -155,6 +151,7 @@ export default function History({ history }: any) {
     <SimpleGrid flex="1" gap="4" minChildWidth="320px" alignItems="flex-start">
       <Fade in={true}>
         <Flex direction="column" p={["6", "8"]} bg="gray.100" borderRadius={8}>
+          <b>Your Current History</b>
           <Flex direction="row">
             <HistoryCard
               title="Completed Tasks"

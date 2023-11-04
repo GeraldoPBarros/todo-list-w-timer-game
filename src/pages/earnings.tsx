@@ -51,7 +51,9 @@ export default function History(rewards: RewardsList) {
     <SimpleGrid flex="1" gap="4" minChildWidth="320px" alignItems="flex-start">
       <Fade in={true}>
         <Box p={["6", "8"]} bg="gray.100" borderRadius={8} pb="4">
-          <List spacing="4">
+          <b>Earns On Each Task Finished</b>
+          <br />
+          <List spacing="4" mt={4}>
             <ListItem>
               {rewardsList.rewards.length > 0 &&
                 rewardsList.rewards.map((item: RewardsItem, index: any) => (

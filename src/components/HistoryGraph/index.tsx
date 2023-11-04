@@ -1,9 +1,12 @@
+import { useMediaQuery } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 
 import { lazy } from "react";
 let Plot = lazy(() => import("react-plotly.js"));
 
 export function HistoryGraph({ data }: any) {
+  const [isLargerThan680] = useMediaQuery("(min-width: 680px)");
+
   const [graphData, setGraphData] = useState<any>(data || []);
   useEffect(() => {
     setGraphData(data);
@@ -16,7 +19,7 @@ export function HistoryGraph({ data }: any) {
           data={[graphData]}
           layout={{
             height: 320,
-            width: 500,
+            width: isLargerThan680 ? 500 : 300,
             xaxis: {
               showticklabels: true,
               ticks: "",
