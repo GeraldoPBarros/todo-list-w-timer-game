@@ -4,7 +4,9 @@ import {
   Box,
   Button,
   Code,
+  Fade,
   Flex,
+  Icon,
   List,
   ListItem,
   Menu,
@@ -15,6 +17,7 @@ import {
   Skeleton,
   Stack,
   Text,
+  Tooltip,
   useMediaQuery,
 } from "@chakra-ui/react";
 import { GetServerSideProps } from "next";
@@ -25,15 +28,17 @@ import { useRouter } from "next/navigation";
 import { Suspense } from "react";
 import { HistoryCard } from "@/components/Cards";
 import { ChevronDownIcon } from "@chakra-ui/icons";
-import { history_options } from "@/utils/historyOptions";
+import { getHistoryTags, history_options } from "@/utils/historyOptions";
 import { useRewardsContext } from "@/context/RewardsContext";
 import { useAuth } from "@/context/AuthContext";
+import { MdOutlineSell } from "react-icons/md";
 
 interface HistoryItem {
   id: number;
   name: string;
   createdAt: string;
   finishedAt: string;
+  tags: string;
 }
 
 type HistoryList = HistoryItem[];
@@ -55,6 +60,10 @@ export default function History({ history }: any) {
 
   const { user, signOut } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    console.log("history: ", history);
+  }, [history]);
 
   useEffect(() => {
     if (user === null) {
@@ -144,95 +153,102 @@ export default function History({ history }: any) {
 
   return (
     <SimpleGrid flex="1" gap="4" minChildWidth="320px" alignItems="flex-start">
-      <Flex direction="column" p={["6", "8"]} bg="gray.100" borderRadius={8}>
-        <Flex direction="row">
-          <HistoryCard
-            title="Completed Tasks"
-            value={history.historyList.length || 0}
-          />
-          <HistoryCard
-            title="Pending Tasks"
-            value={history.countTasks ? history.countTasks : "0"}
-            margin="10px"
-          />
-        </Flex>
-        <br />
-
-        <Menu>
-          <MenuButton
-            as={Button}
-            rightIcon={<ChevronDownIcon />}
-            bg="gray.50"
-            mb={4}
-            w={130}
-          >
-            {histSelector}
-          </MenuButton>
-
-          <MenuList zIndex={10}>
-            {history_options.map((value: HistorySelector) => (
-              <MenuItem zIndex={11} onClick={() => setHistSelector(value)}>
-                {value}
-              </MenuItem>
-            ))}
-          </MenuList>
-        </Menu>
-
-        <Suspense
-          fallback={
-            <Stack
-              h={300}
-              w={1000}
-              direction={isLargerThan1200 ? "row" : "column"}
-            >
-              <Box h={400} w={450}>
-                <Skeleton height="30px" mb={4} mt={20} />
-                <Skeleton height="30px" mb={4} />
-                <Skeleton height="30px" mb={4} />
-                <Text>Loading ... </Text>
-              </Box>
-              <Box h={400} w={450} ml={8}>
-                <Skeleton height="30px" mb={4} mt={20} />
-                <Skeleton height="30px" mb={4} />
-                <Skeleton height="30px" mb={4} />
-              </Box>
-            </Stack>
-          }
-        >
-          <Flex direction={isLargerThan1200 ? "row" : "column"}>
-            <Stack
-              direction="column"
-              spacing="2"
-              borderRight={isLargerThan1200 ? "1px solid" : "none"}
-              borderColor={isLargerThan1200 ? "gray.200" : "none"}
-              mr={4}
-              mb={5}
-              pr={4}
-              w={520}
-            >
-              <Text mb="-35" ml="2" zIndex={5}>
-                Daily task complete
-              </Text>
-              <HistoryGraph data={selectedHistoryList} />
-            </Stack>
-            <List spacing="4">
-              <ListItem>
-                {historyList.length > 0 &&
-                  historyList.map((item: HistoryItem) => (
-                    <Stack direction={["row"]} spacing="8px" mb={2}>
-                      <Code colorScheme="orange" children={`${item.name}`} />
-                      <Text>{`>`}</Text>
-                      <Code
-                        colorScheme="green"
-                        children={`${item.finishedAt}`}
-                      />
-                    </Stack>
-                  ))}
-              </ListItem>
-            </List>
+      <Fade in={true}>
+        <Flex direction="column" p={["6", "8"]} bg="gray.100" borderRadius={8}>
+          <Flex direction="row">
+            <HistoryCard
+              title="Completed Tasks"
+              value={history.historyList.length || 0}
+            />
+            <HistoryCard
+              title="Pending Tasks"
+              value={history.countTasks ? history.countTasks : "0"}
+              margin="10px"
+            />
           </Flex>
-        </Suspense>
-      </Flex>
+          <br />
+
+          <Menu>
+            <MenuButton
+              as={Button}
+              rightIcon={<ChevronDownIcon />}
+              bg="gray.50"
+              mb={4}
+              w={130}
+            >
+              {histSelector}
+            </MenuButton>
+
+            <MenuList zIndex={10}>
+              {history_options.map((value: HistorySelector) => (
+                <MenuItem zIndex={11} onClick={() => setHistSelector(value)}>
+                  {value}
+                </MenuItem>
+              ))}
+            </MenuList>
+          </Menu>
+
+          <Suspense
+            fallback={
+              <Stack
+                h={300}
+                w={1000}
+                direction={isLargerThan1200 ? "row" : "column"}
+              >
+                <Box h={400} w={450}>
+                  <Skeleton height="30px" mb={4} mt={20} />
+                  <Skeleton height="30px" mb={4} />
+                  <Skeleton height="30px" mb={4} />
+                  <Text>Loading ... </Text>
+                </Box>
+                <Box h={400} w={450} ml={8}>
+                  <Skeleton height="30px" mb={4} mt={20} />
+                  <Skeleton height="30px" mb={4} />
+                  <Skeleton height="30px" mb={4} />
+                </Box>
+              </Stack>
+            }
+          >
+            <Flex direction={isLargerThan1200 ? "row" : "column"}>
+              <Stack
+                direction="column"
+                spacing="2"
+                borderRight={isLargerThan1200 ? "1px solid" : "none"}
+                borderColor={isLargerThan1200 ? "gray.200" : "none"}
+                mr={4}
+                mb={5}
+                pr={4}
+                w={520}
+              >
+                <Text mb="-35" ml="2" zIndex={5}>
+                  Daily task complete
+                </Text>
+                <HistoryGraph data={selectedHistoryList} />
+              </Stack>
+              <List spacing="4">
+                <ListItem>
+                  {historyList.length > 0 &&
+                    historyList.map((item: HistoryItem) => (
+                      <Stack direction={["row"]} spacing="8px" mb={2}>
+                        <Code colorScheme="orange" children={`${item.name}`} />
+                        <Text>{`>`}</Text>
+                        <Code
+                          colorScheme="green"
+                          children={`${item.finishedAt}`}
+                        />
+                        <Tooltip placement={"right"} label={item.tags}>
+                          <span>
+                            <Icon as={MdOutlineSell} mt={1} />
+                          </span>
+                        </Tooltip>
+                      </Stack>
+                    ))}
+                </ListItem>
+              </List>
+            </Flex>
+          </Suspense>
+        </Flex>
+      </Fade>
     </SimpleGrid>
   );
 }
@@ -265,6 +281,10 @@ export const getServerSideProps: GetServerSideProps = async () => {
         name: histData.data.name,
         createdAt: histData.data.createdAt,
         finishedAt: histData.data.finishedAt,
+        tags:
+          histData.data.tags !== undefined
+            ? getHistoryTags(histData.data.tags)
+            : "Not available.",
       };
     });
 

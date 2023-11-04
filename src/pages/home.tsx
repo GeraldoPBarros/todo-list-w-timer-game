@@ -18,6 +18,8 @@ import {
   TagLabel,
   TagCloseButton,
   useDisclosure,
+  useMediaQuery,
+  Fade,
 } from "@chakra-ui/react";
 
 import { AddIcon, CloseIcon } from "@chakra-ui/icons";
@@ -72,7 +74,8 @@ export default function Home({ tasks, tags }: TasksProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const { user, signOut } = useAuth();
-  const router = useRouter();
+
+  const [isLargerThan680] = useMediaQuery("(min-width: 680px)");
 
   useEffect(() => {
     console.log("tags: ", tags);
@@ -86,7 +89,6 @@ export default function Home({ tasks, tags }: TasksProps) {
   }, []);
 
   useEffect(() => {
-    console.log("TASKS: ", tasks);
     if (tasks.length > 0) {
       const todoArr = [];
       for (let x = 0; x < tasks.length; x++) {
@@ -95,10 +97,6 @@ export default function Home({ tasks, tags }: TasksProps) {
       setTodoList(todoArr);
     }
   }, [tasks]);
-
-  useEffect(() => {
-    console.log("TASKTAGS: ", taskTags);
-  }, [taskTags]);
 
   const removeItemById = (idToRemove: number) => {
     const updatedList = todoList.filter((item) => item.id !== idToRemove);
@@ -137,6 +135,7 @@ export default function Home({ tasks, tags }: TasksProps) {
     const response = await api.put("api/history/tasks_history", {
       name: item.name,
       createdAt: item.createdAt,
+      tags: item.tags,
       finishedAt: format(new Date(), "dd, MMM yyyy pp"),
     });
     if (response.status === 200) {
@@ -150,7 +149,6 @@ export default function Home({ tasks, tags }: TasksProps) {
   }
 
   async function OnAddTask(text: string, selecTags: string[]) {
-    console.log("TAGS SELECTED: ", selecTags);
     const response = await api.put("api/tasks/tasks_list", {
       name: text,
       isFinished: false,
@@ -183,162 +181,176 @@ export default function Home({ tasks, tags }: TasksProps) {
 
   return (
     <SimpleGrid flex="1" gap="4" minChildWidth="320px" alignItems="flex-start">
-      <InsertTagsModal
-        isOpen={isOpen}
-        onClose={onClose}
-        onEnd={setTaskTags}
-        tagList={tags}
-      />
-      <Box p={["6", "8"]} bg="gray.100" borderRadius={8} pb="4">
-        <Text fontSize="lg" mb="4">
-          <Flex w="95%" justify="space-between">
-            <Stack direction="row" spacing={4} alignItems="center">
-              <b>Your Current List</b>
-              {/** VALIDATION FOR PAGINATION */}
-              {todoList.length > 31231231230 && (
-                <Button
-                  textDecoration="none"
-                  _hover={{ textDecor: "none" }}
-                  disabled={archiveSpinner}
-                  onClick={async () => {
-                    setArchiveSpinner(true);
-                    for (let x = 0; x < todoList.length; x++) {
-                      if (todoList[x].isFinished) {
-                        const response = await api.put(
-                          "api/history/tasks_history",
-                          {
-                            id: todoList[x].id,
-                            name: todoList[x].name,
-                            createdAt: todoList[x].createdAt,
-                            finishedAt: format(new Date(), "dd, MMM yyyy pp"),
-                          }
-                        );
-                        if (response.status === 200) {
-                          const respHist = await api.delete(
-                            `api/tasks/tasks_list`,
-                            { params: { id: todoList[x].idBd } }
+      <Fade in={true}>
+        <InsertTagsModal
+          isOpen={isOpen}
+          onClose={onClose}
+          onEnd={setTaskTags}
+          tagList={tags}
+        />
+        <Box p={["6", "8"]} bg="gray.100" borderRadius={8} pb="4">
+          <Text fontSize="lg" mb="4">
+            <Flex w="95%" justify="space-between">
+              <Stack direction="row" spacing={4} alignItems="center">
+                <b>Your Current List</b>
+                {/** VALIDATION FOR PAGINATION */}
+                {todoList.length > 31231231230 && (
+                  <Button
+                    textDecoration="none"
+                    _hover={{ textDecor: "none" }}
+                    disabled={archiveSpinner}
+                    onClick={async () => {
+                      setArchiveSpinner(true);
+                      for (let x = 0; x < todoList.length; x++) {
+                        if (todoList[x].isFinished) {
+                          const response = await api.put(
+                            "api/history/tasks_history",
+                            {
+                              id: todoList[x].id,
+                              name: todoList[x].name,
+                              createdAt: todoList[x].createdAt,
+                              finishedAt: format(new Date(), "dd, MMM yyyy pp"),
+                            }
                           );
-                          if (respHist.status === 200) {
-                            removeItemById(todoList[x]?.id);
+                          if (response.status === 200) {
+                            const respHist = await api.delete(
+                              `api/tasks/tasks_list`,
+                              { params: { id: todoList[x].idBd } }
+                            );
+                            if (respHist.status === 200) {
+                              removeItemById(todoList[x]?.id);
+                            }
                           }
                         }
                       }
-                    }
-                    setArchiveSpinner(false);
-                  }}
-                >
-                  {archiveSpinner && <Spinner />}
-                </Button>
-              )}
-            </Stack>
-
-            <Text>{currentDay}</Text>
-          </Flex>
-
-          <br />
-
-          <Flex direction="column">
-            {todoList.length > 0 &&
-              todoList.map((item: Item) => (
-                <Stack direction={["column"]} spacing="4px" alignItems="flex-start">
-                  <Stack direction={["row"]} spacing="8px" alignItems="center">
-                    <CheckboxComponent
-                      item={item}
-                      isFinished={item.isFinished}
-                      onChangeFn={() => OnChangeCheckbox(item)}
-                    />
-                    <Text key={item?.name}>{item?.name}</Text>
-                    <Button
-                      textDecoration="none"
-                      _hover={{ textDecor: "none" }}
-                      onClick={async () => OnArchiveTask(item)}
-                    >
-                      <Icon as={MdArchive} fontSize="22" color="gray.400" />
-                    </Button>
-                  </Stack>
-                  <Stack direction={["row"]} spacing="4px" alignItems="center">
-                    {item?.tags !== undefined &&
-                      item?.tags.map((tagItem) => (
-                        <Tag
-                          size={"sm"}
-                          key={tagItem}
-                          borderRadius="full"
-                          variant="solid"
-                          colorScheme="linkedin"
-                        >
-                          <TagLabel>{tagItem}</TagLabel>
-                        </Tag>
-                      ))}
-                  </Stack>
-                </Stack>
-              ))}
-          </Flex>
-        </Text>
-        <br />
-        {isInsertStatus && (
-          <Button
-            textDecoration="none"
-            _hover={{ textDecor: "none" }}
-            color="gray.500"
-            onClick={() => setIsInsertStatus(false)}
-          >
-            + Insert
-          </Button>
-        )}
-        {!isInsertStatus && (
-          <Stack direction={["column", "row"]} spacing="8px">
-            <Stack direction={"column"} spacing="4px">
-              <Input
-                placeholder="Insert Task"
-                w="300px"
-                value={insertText}
-                onChange={(e) => setInsertText(e.target.value)}
-              />
-              <HStack spacing={4}>
-                {taskTags.map((tag) => (
-                  <Tag
-                    size={"sm"}
-                    key={tag}
-                    borderRadius="full"
-                    variant="solid"
-                    colorScheme="green"
+                      setArchiveSpinner(false);
+                    }}
                   >
-                    <TagLabel>{tag}</TagLabel>
-                    <TagCloseButton onClick={() => removeTag(tag)} />
-                  </Tag>
-                ))}
-              </HStack>
-            </Stack>
+                    {archiveSpinner && <Spinner />}
+                  </Button>
+                )}
+              </Stack>
 
+              <Text>{currentDay}</Text>
+            </Flex>
+
+            <br />
+
+            <Flex direction="column">
+              {todoList.length > 0 &&
+                todoList.map((item: Item) => (
+                  <Stack
+                    direction={["column"]}
+                    spacing="4px"
+                    alignItems="flex-start"
+                  >
+                    <Stack
+                      direction={["row"]}
+                      spacing="8px"
+                      alignItems="center"
+                    >
+                      <CheckboxComponent
+                        item={item}
+                        isFinished={item.isFinished}
+                        onChangeFn={() => OnChangeCheckbox(item)}
+                      />
+                      <Text key={item?.name}>{item?.name}</Text>
+                      <Button
+                        textDecoration="none"
+                        _hover={{ textDecor: "none" }}
+                        onClick={async () => OnArchiveTask(item)}
+                      >
+                        <Icon as={MdArchive} fontSize="22" color="gray.400" />
+                      </Button>
+                    </Stack>
+                    <Stack
+                      direction={["row"]}
+                      spacing="4px"
+                      alignItems="center"
+                    >
+                      {item?.tags !== undefined &&
+                        item?.tags.map((tagItem) => (
+                          <Tag
+                            size={"sm"}
+                            key={tagItem}
+                            borderRadius="full"
+                            variant="solid"
+                            colorScheme="linkedin"
+                          >
+                            <TagLabel>{tagItem}</TagLabel>
+                          </Tag>
+                        ))}
+                    </Stack>
+                  </Stack>
+                ))}
+            </Flex>
+          </Text>
+          <br />
+          {isInsertStatus && (
             <Button
               textDecoration="none"
-              onClick={async () =>
-                insertText !== "" ? OnAddTask(insertText, taskTags) : null
-              }
+              _hover={{ textDecor: "none" }}
+              color="gray.500"
+              onClick={() => setIsInsertStatus(false)}
             >
-              <AddIcon boxSize={3} />
+              + Insert
             </Button>
-            <Button textDecoration="none" onClick={() => onOpen()}>
-              <Icon as={MdOutlineSell} />
-            </Button>
-            <Button textDecoration="none" onClick={() => CloseInsertionMode()}>
-              <CloseIcon boxSize={3} />
-            </Button>
-          </Stack>
-        )}
-      </Box>
+          )}
+          {!isInsertStatus && (
+            <Stack direction={isLargerThan680 ? "row" : "column"} spacing="8px">
+              <Stack direction={"column"} spacing="4px">
+                <Input
+                  placeholder="Insert Task"
+                  w="300px"
+                  value={insertText}
+                  onChange={(e) => setInsertText(e.target.value)}
+                />
+                <HStack spacing={4}>
+                  {taskTags.map((tag) => (
+                    <Tag
+                      size={"sm"}
+                      key={tag}
+                      borderRadius="full"
+                      variant="solid"
+                      colorScheme="green"
+                    >
+                      <TagLabel>{tag}</TagLabel>
+                      <TagCloseButton onClick={() => removeTag(tag)} />
+                    </Tag>
+                  ))}
+                </HStack>
+              </Stack>
+              <Stack direction={"row"}>
+                <Button
+                  textDecoration="none"
+                  onClick={async () =>
+                    insertText !== "" ? OnAddTask(insertText, taskTags) : null
+                  }
+                >
+                  <AddIcon boxSize={3} />
+                </Button>
+                <Button textDecoration="none" onClick={() => onOpen()}>
+                  <Icon as={MdOutlineSell} />
+                </Button>
+                <Button
+                  textDecoration="none"
+                  onClick={() => CloseInsertionMode()}
+                >
+                  <CloseIcon boxSize={3} />
+                </Button>
+              </Stack>
+            </Stack>
+          )}
+        </Box>
+      </Fade>
     </SimpleGrid>
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async ({
-  req,
-  params,
-}) => {
+export const getServerSideProps: GetServerSideProps = async () => {
   try {
     const response = await api.get("tasks/tasks_list");
     const tempTasks: any = response.data.tasks.data;
-    // console.log("TASKS: ", response.data.tasks.data[0].ref["@ref"].id);
 
     const responseTags = await api.get("tags/tag_manager");
     const tempTags: any = responseTags.data.tags.data;

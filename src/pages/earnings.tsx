@@ -2,6 +2,7 @@ import { api } from "../services/api";
 import {
   Box,
   Code,
+  Fade,
   List,
   ListIcon,
   ListItem,
@@ -48,32 +49,34 @@ export default function History(rewards: RewardsList) {
 
   return (
     <SimpleGrid flex="1" gap="4" minChildWidth="320px" alignItems="flex-start">
-      <Box p={["6", "8"]} bg="gray.100" borderRadius={8} pb="4">
-        <List spacing="4">
-          <ListItem>
-            {rewardsList.rewards.length > 0 &&
-              rewardsList.rewards.map((item: RewardsItem, index: any) => (
-                <Stack direction={["row"]} spacing="8px" mb={2}>
-                  <ListIcon as={MdCheckCircle} color="green.500" />
-                  <Code
-                    colorScheme="orange"
-                    children={`Finished at: ${item.date}`}
-                  />
-                  <Text>{`.`}</Text>
-                  <Code
-                    colorScheme="yellow"
-                    children={`Working time: ${item.time}`}
-                  />
-                  <Text>{`.`}</Text>
-                  <Code
-                    colorScheme="green"
-                    children={`+ ${item.advancedPercentage}%`}
-                  />
-                </Stack>
-              ))}
-          </ListItem>
-        </List>
-      </Box>
+      <Fade in={true}>
+        <Box p={["6", "8"]} bg="gray.100" borderRadius={8} pb="4">
+          <List spacing="4">
+            <ListItem>
+              {rewardsList.rewards.length > 0 &&
+                rewardsList.rewards.map((item: RewardsItem, index: any) => (
+                  <Stack direction={["row"]} spacing="8px" mb={2}>
+                    <ListIcon as={MdCheckCircle} color="green.500" />
+                    <Code
+                      colorScheme="orange"
+                      children={`Finished at: ${item.date}`}
+                    />
+                    <Text>{`.`}</Text>
+                    <Code
+                      colorScheme="yellow"
+                      children={`Working time: ${item.time}`}
+                    />
+                    <Text>{`.`}</Text>
+                    <Code
+                      colorScheme="green"
+                      children={`+ ${item.advancedPercentage}%`}
+                    />
+                  </Stack>
+                ))}
+            </ListItem>
+          </List>
+        </Box>
+      </Fade>
     </SimpleGrid>
   );
 }

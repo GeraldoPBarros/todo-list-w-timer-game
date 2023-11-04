@@ -2,6 +2,7 @@ import { api } from "../services/api";
 import {
   Box,
   Button,
+  Fade,
   Flex,
   Icon,
   Input,
@@ -99,68 +100,70 @@ export default function Tags(tags: TagList) {
 
   return (
     <SimpleGrid flex="1" gap="4" minChildWidth="320px" alignItems="flex-start">
-      <Box p={["6", "8"]} bg="gray.100" borderRadius={8} pb="4">
-        <SimpleGrid columns={4} spacing={10}>
-          {tagList.tags.length > 0 &&
-            tagList.tags.map((item: TagItem, index: any) => (
-              <Flex direction={"column"} alignItems={"flex-start"}>
-                <Tag variant="solid" colorScheme="linkedin" w={200}>
-                  <Icon as={MdOutlineSell} mr={2} />
-                  {item.name}{" "}
-                </Tag>
-                <Button
-                  bg={"transparent"}
-                  _hover={{
-                    bg: "transparent",
-                    borderBottom: "1px solid gray.400",
-                  }}
-                  fontSize={12}
-                  h={10}
-                  m={0}
-                  p={0}
-                  onClick={() => removeItemById(item.id)}
-                >
-                  Remove
-                </Button>
-              </Flex>
-            ))}
-        </SimpleGrid>
-        
-        {isInsertStatus && (
-          <Button
-            textDecoration="none"
-            _hover={{ textDecor: "none" }}
-            color="gray.500"
-            onClick={() => setIsInsertStatus(false)}
-          >
-            + Tag
-          </Button>
-        )}
-        {!isInsertStatus && (
-          <Stack direction={["column", "row"]} spacing="8px">
-            <Input
-              placeholder="Insert Tag"
-              w="300px"
-              value={insertText}
-              onChange={(e) => setInsertText(e.target.value)}
-            />
+      <Fade in={true}>
+        <Box p={["6", "8"]} bg="gray.100" borderRadius={8} pb="4">
+          <SimpleGrid columns={4} spacing={10}>
+            {tagList.tags.length > 0 &&
+              tagList.tags.map((item: TagItem, index: any) => (
+                <Flex direction={"column"} alignItems={"flex-start"}>
+                  <Tag variant="solid" colorScheme="linkedin" w={200}>
+                    <Icon as={MdOutlineSell} mr={2} />
+                    {item.name}{" "}
+                  </Tag>
+                  <Button
+                    bg={"transparent"}
+                    _hover={{
+                      bg: "transparent",
+                      borderBottom: "1px solid gray.400",
+                    }}
+                    fontSize={12}
+                    h={10}
+                    m={0}
+                    p={0}
+                    onClick={() => removeItemById(item.id)}
+                  >
+                    Remove
+                  </Button>
+                </Flex>
+              ))}
+          </SimpleGrid>
+
+          {isInsertStatus && (
             <Button
               textDecoration="none"
               _hover={{ textDecor: "none" }}
-              onClick={async () => OnAddTag(insertText)}
+              color="gray.500"
+              onClick={() => setIsInsertStatus(false)}
             >
-              <AddIcon boxSize={3} />
+              + Tag
             </Button>
-            <Button
-              textDecoration="none"
-              _hover={{ textDecor: "none" }}
-              onClick={() => CloseInsertionMode()}
-            >
-              <CloseIcon boxSize={3} />
-            </Button>
-          </Stack>
-        )}
-      </Box>
+          )}
+          {!isInsertStatus && (
+            <Stack direction={["column", "row"]} spacing="8px">
+              <Input
+                placeholder="Insert Tag"
+                w="300px"
+                value={insertText}
+                onChange={(e) => setInsertText(e.target.value)}
+              />
+              <Button
+                textDecoration="none"
+                _hover={{ textDecor: "none" }}
+                onClick={async () => OnAddTag(insertText)}
+              >
+                <AddIcon boxSize={3} />
+              </Button>
+              <Button
+                textDecoration="none"
+                _hover={{ textDecor: "none" }}
+                onClick={() => CloseInsertionMode()}
+              >
+                <CloseIcon boxSize={3} />
+              </Button>
+            </Stack>
+          )}
+        </Box>
+      </Fade>
     </SimpleGrid>
   );
 }
