@@ -11,6 +11,10 @@ Email: demo@example.com
 
 Password: example12345
 
+## Technologies
+
+Yarn, NextJS, Context API, FaunaDB, Firebase, Chakra-ui, Plotly.Js, Axios, React Hook Form, Yup, Date-fns.
+
 ## Features
 
 - Authentication and creation of labeled tasks.
