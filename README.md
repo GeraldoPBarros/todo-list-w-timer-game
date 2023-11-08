@@ -34,6 +34,8 @@ To run the project locally, follow these steps:
 
 3. Navigate to the project directory;
 
-4. Start the development server.
+4. Configuration of environment variables on the .env file (api, fauna, firebase);
+
+5. Start the development server.
 
 The project will be available at [http://localhost:3000](http://localhost:3000).
