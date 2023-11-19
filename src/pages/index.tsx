@@ -76,7 +76,7 @@ export default function SigIn() {
           />
           <Input
             type="password"
-            label="Senha"
+            label="Password"
             error={errors.password}
             {...register("password")}
           />
@@ -89,7 +89,7 @@ export default function SigIn() {
           size="lg"
           isLoading={formState.isSubmitting}
         >
-          Entrar
+          Login
         </Button>
       </Flex>
     </Flex>

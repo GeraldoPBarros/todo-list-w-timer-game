@@ -25,7 +25,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
   if (req.method === "DELETE") {
     const { id } = req.query;
-    console.log("ID: ", id);
     let query = await fauna.query(
       q.Delete(q.Ref(q.Collection("tags"), id))
     );
