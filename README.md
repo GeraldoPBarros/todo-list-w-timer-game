@@ -1,3 +1,6 @@
+
+<img width="870" alt="todolistpng" src="https://github.com/GeraldoPBarros/todo-list-w-timer-game/assets/19782782/104b89fa-1fdd-4946-9221-eefdb160851a">
+
 # To-do list
 
 A responsive to-do list web application with a gamified approach.
