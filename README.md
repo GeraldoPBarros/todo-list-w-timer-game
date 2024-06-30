@@ -18,10 +18,12 @@ Password: example12345
 
 ## Technologies
 
-Yarn, NextJS, Context API, FaunaDB, Firebase, Chakra-ui, Plotly.Js, Axios, React Hook Form, Yup, Date-fns.
+Yarn, NextJS, Next-PWA, Context API, FaunaDB, Firebase, Chakra-ui, Plotly.Js, Axios, React Hook Form, Yup, Date-fns.
 
 ## Features
 - Set timer to focus on activities and receive rewards after the time is completed.
+
+- Progressive Web App (PWA) offering an app-like experience.
   
 - Authentication and creation of labeled tasks.
 <img width="870" alt="todolistpng" src="https://github.com/GeraldoPBarros/todo-list-w-timer-game/assets/19782782/104b89fa-1fdd-4946-9221-eefdb160851a">
