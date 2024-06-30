@@ -5,6 +5,7 @@ export default class MyDocumento extends Document {
     return (
       <Html>
         <Head>
+          <link rel="manifest" href="/manifest.json" />
           <link rel="shortcut icon" href="/PageIcon_b.png" />
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" />
